@@ -8,6 +8,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import GlareHover from "./components/GlareHover";
 import ClickSpark from "./components/ClickSpark";
 import FlipCard from "./components/FlipCard";
+import WorkSection from "./components/WorkSection";
 
 export default function Home() {
   const [assetsReady, setAssetsReady] = useState(false);
@@ -472,6 +473,11 @@ export default function Home() {
             </div>
           </div>
         </section>
+        
+        {/* ─────────────────────────────────────────────────────────────
+            SECTION 3: SELECTED BUILDS, THE LAB, HOW IT HAPPENS, WHAT'S NEXT
+           ───────────────────────────────────────────────────────────── */}
+        <WorkSection />
       </main>
     </ClickSpark>
   );
