@@ -1,10 +1,71 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import RippleDistortion from "./components/RippleDistortion";
 import PixelSwap from "./components/PixelSwap";
+import LoadingScreen from "./components/LoadingScreen";
 
 export default function Home() {
+  const [assetsReady, setAssetsReady] = useState(false);
+  const [webglReady, setWebglReady] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // 1. Actively preload the 1.6MB background image
+    const preloadImage = new Promise<void>((resolve) => {
+      const img = new window.Image();
+      img.src = '/portfolio-landing.png';
+      if (img.complete && img.naturalWidth > 0) {
+        if (img.decode) {
+          img.decode().then(resolve).catch(resolve);
+        } else {
+          resolve();
+        }
+        return;
+      }
+      img.onload = () => {
+        if (img.decode) {
+          img.decode().then(resolve).catch(resolve);
+        } else {
+          resolve();
+        }
+      };
+      img.onerror = () => resolve();
+    });
+
+    // 2. Preload Gilroy & document fonts
+    const preloadFonts = typeof document !== 'undefined' && 'fonts' in document
+      ? document.fonts.ready.catch(() => {})
+      : Promise.resolve();
+
+    // Ensure assets are downloaded before dismissing loader
+    Promise.all([preloadImage, preloadFonts]).then(() => {
+      if (isMounted) {
+        // Minimum time of 600ms so progress displays smoothly
+        setTimeout(() => {
+          if (isMounted) setAssetsReady(true);
+        }, 600);
+      }
+    });
+
+    // Fallback safety timeout (6.5s) in case of packet loss
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) {
+        setAssetsReady(true);
+        setWebglReady(true);
+      }
+    }, 6500);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(safetyTimer);
+    };
+  }, []);
+
+  const isReady = assetsReady && webglReady;
+
   const exploringTopics = [
     { name: "LLMs", desc: "Fine-tuning & Reasoning" },
     { name: "Multimodal AI", desc: "Vision-Language Architectures" },
@@ -14,13 +75,16 @@ export default function Home() {
   ];
 
   return (
-    <main className="relative w-full min-h-screen bg-black text-white font-gilroy selection:bg-[#ff2a5f] selection:text-white">
+    <main className="relative w-full min-h-screen bg-black text-white font-gilroy selection:bg-[#ff2a5f] selection:text-white overflow-x-hidden">
+      {/* Loading Screen - blocks until background image, WebGL texture and fonts are fully downloaded */}
+      <LoadingScreen isReady={isReady} />
+
       {/* ─────────────────────────────────────────────────────────────
           SECTION 1: HERO LANDING (FULL VISIBLE HEIGHT WITH WEBGL BACKGROUND)
          ───────────────────────────────────────────────────────────── */}
       <section className="relative w-full h-screen min-h-[100dvh] overflow-hidden bg-black flex flex-col justify-between">
-        {/* Background Interactive Ripple Distortion Effect */}
-        <div className="absolute inset-0 z-0">
+        {/* Background Interactive Ripple Distortion Effect - perfectly framed on mobile & desktop */}
+        <div className="absolute top-0 left-0 w-full h-[65vh] sm:h-full z-0 overflow-hidden">
           <RippleDistortion
             src="/portfolio-landing.png"
             brushSize={50}
@@ -34,11 +98,14 @@ export default function Home() {
             tintAmount={0}
             brightness={1.15}
             highlightColor="#ffffff"
+            onLoad={() => setWebglReady(true)}
           />
+          {/* Mobile Bottom Fade - seamlessly merges portrait into black background */}
+          <div className="absolute inset-x-0 bottom-0 h-44 sm:hidden bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none" />
         </div>
 
         {/* Top Navigation */}
-        <header className="relative z-10 w-full px-6 sm:px-12 md:px-16 lg:px-24 pt-8 md:pt-10 flex items-center justify-between">
+        <header className="relative z-10 w-full px-5 sm:px-12 md:px-16 lg:px-24 pt-6 sm:pt-8 md:pt-10 flex items-center justify-between">
           <Link
             href="/"
             className="group flex items-center gap-2.5 text-base md:text-lg font-bold tracking-tight text-white/90 hover:text-white transition-colors"
@@ -80,18 +147,35 @@ export default function Home() {
           </nav>
         </header>
 
-        {/* Hero Content */}
-        <div className="relative z-10 w-full px-6 sm:px-12 md:px-16 lg:px-24 pb-8 translate-y-0 sm:translate-y-[-8px] md:translate-y-[-16px] flex flex-col justify-start max-w-3xl pointer-events-none">
-          <h1 className="text-[31px] sm:text-[43px] md:text-[55px] lg:text-[65px] font-bold text-white tracking-tight leading-[1.1] drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
+        {/* Hero Content - Placed cleanly in lower half on mobile below portrait, and bottom-left on desktop */}
+        <div className="relative z-10 w-full px-5 sm:px-12 md:px-16 lg:px-24 pb-6 sm:pb-8 flex-1 sm:flex-initial flex flex-col justify-end sm:justify-start max-w-3xl pointer-events-none">
+          <h1 className="text-[26px] min-[380px]:text-[29px] xs:text-[34px] sm:text-[43px] md:text-[55px] lg:text-[65px] font-bold text-white tracking-tight leading-[1.14] sm:leading-[1.1] drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
             I build intelligent systems that turn curiosity into{" "}
             <span className="text-[#ff2a5f] font-extrabold inline-block drop-shadow-[0_0_30px_rgba(255,42,95,0.6)]">
               possibility.
             </span>
           </h1>
+
+          {/* CTA Buttons */}
+          <div className="flex items-center gap-3 pt-4 sm:pt-6 pointer-events-auto">
+            <a
+              href="#overview"
+              className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full text-xs sm:text-sm font-bold bg-[#ff2a5f] text-white shadow-[0_0_24px_rgba(255,42,95,0.45)] hover:bg-[#ff154f] hover:shadow-[0_0_30px_rgba(255,42,95,0.6)] transition-all duration-300 flex items-center gap-2"
+            >
+              <span>Explore My Work</span>
+              <span className="text-sm font-mono">&rarr;</span>
+            </a>
+            <a
+              href="#contact"
+              className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full text-xs sm:text-sm font-semibold bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/15 transition-all duration-300"
+            >
+              Learn More
+            </a>
+          </div>
         </div>
 
         {/* Bottom Bar Details & Scroll Indicator */}
-        <footer className="relative z-10 w-full px-6 sm:px-12 md:px-16 lg:px-24 pb-8 md:pb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs md:text-sm text-zinc-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+        <footer className="relative z-10 w-full px-5 sm:px-12 md:px-16 lg:px-24 pb-6 sm:pb-8 md:pb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 text-xs md:text-sm text-zinc-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
           <div className="flex items-center gap-3">
             <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
             <span className="tracking-widest uppercase font-medium text-[11px] md:text-xs text-zinc-300">
@@ -131,13 +215,13 @@ export default function Home() {
          ───────────────────────────────────────────────────────────── */}
       <section
         id="overview"
-        className="relative w-full min-h-screen bg-gradient-to-b from-[#050507] via-[#09090d] to-[#040406] border-t border-white/[0.08] py-24 sm:py-32 px-6 sm:px-12 md:px-16 lg:px-24"
+        className="relative w-full min-h-screen bg-gradient-to-b from-[#050507] via-[#09090d] to-[#040406] border-t border-white/[0.08] py-20 sm:py-28 md:py-32 px-5 sm:px-12 md:px-16 lg:px-24 overflow-hidden"
       >
         {/* Subtle Ambient Glow matching theme */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#ff2a5f]/[0.035] blur-[160px] pointer-events-none rounded-full" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] max-w-full h-[400px] bg-[#ff2a5f]/[0.035] blur-[160px] pointer-events-none rounded-full" />
 
         {/* Section Header */}
-        <div className="relative z-10 max-w-6xl mx-auto text-center mb-16 md:mb-20">
+        <div className="relative z-10 max-w-6xl mx-auto text-center mb-14 sm:mb-16 md:mb-20">
           <p className="text-xs sm:text-sm tracking-[0.3em] text-zinc-400 uppercase font-mono font-medium inline-flex items-center gap-2">
             <span>PAVAN</span>
             <span className="text-[#ff2a5f]">/</span>
@@ -146,9 +230,9 @@ export default function Home() {
         </div>
 
         {/* 3 Interactive Cards with PixelSwap */}
-        <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
           {/* ── CARD 01: BUILDER ── */}
-          <div className="rounded-[28px] border border-white/10 bg-[#0d0d12] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white/20 hover:shadow-[0_16px_48px_rgba(0,0,0,0.7)]">
+          <div className="rounded-[24px] sm:rounded-[28px] border border-white/10 bg-[#0d0d12] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white/20 hover:shadow-[0_16px_48px_rgba(0,0,0,0.7)]">
             <PixelSwap
               aspectRatio="16 / 11"
               pattern="random"
@@ -163,21 +247,21 @@ export default function Home() {
               randomness={0}
               fade={true}
               firstContent={
-                <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-[#0b0b10] select-none">
-                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-400 mb-3">
+                <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 sm:p-8 bg-[#0b0b10] select-none">
+                  <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-400 mb-2 sm:mb-3">
                     01 / BUILDER
                   </span>
-                  <h3 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy">
+                  <h3 className="text-2xl sm:text-3xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy">
                     10+ Projects
                   </h3>
                 </div>
               }
               secondContent={
-                <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-white text-zinc-950 select-none">
-                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-500 mb-2.5">
+                <div className="w-full h-full flex flex-col items-center justify-center text-center p-5 sm:p-8 bg-white text-zinc-950 select-none">
+                  <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-500 mb-2">
                     FULL-STACK &amp; AI
                   </span>
-                  <h3 className="text-2xl sm:text-3xl lg:text-[34px] font-bold text-zinc-950 tracking-tight font-gilroy mb-2">
+                  <h3 className="text-xl sm:text-2xl lg:text-[34px] font-bold text-zinc-950 tracking-tight font-gilroy mb-1.5 sm:mb-2">
                     Production Apps
                   </h3>
                   <p className="text-xs sm:text-sm text-zinc-600 max-w-[280px] leading-relaxed font-medium">
@@ -189,7 +273,7 @@ export default function Home() {
           </div>
 
           {/* ── CARD 02: HACKATHON ── */}
-          <div className="rounded-[28px] border border-white/10 bg-[#0d0d12] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white/20 hover:shadow-[0_16px_48px_rgba(0,0,0,0.7)]">
+          <div className="rounded-[24px] sm:rounded-[28px] border border-white/10 bg-[#0d0d12] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white/20 hover:shadow-[0_16px_48px_rgba(0,0,0,0.7)]">
             <PixelSwap
               aspectRatio="16 / 11"
               pattern="random"
@@ -204,21 +288,21 @@ export default function Home() {
               randomness={0}
               fade={true}
               firstContent={
-                <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-[#0b0b10] select-none">
-                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-400 mb-3">
+                <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 sm:p-8 bg-[#0b0b10] select-none">
+                  <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-400 mb-2 sm:mb-3">
                     02 / HACKATHON
                   </span>
-                  <h3 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy">
+                  <h3 className="text-2xl sm:text-3xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy">
                     2&times; Podiums
                   </h3>
                 </div>
               }
               secondContent={
-                <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-white text-zinc-950 select-none">
-                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-500 mb-2.5">
+                <div className="w-full h-full flex flex-col items-center justify-center text-center p-5 sm:p-8 bg-white text-zinc-950 select-none">
+                  <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-500 mb-2">
                     COMPETITIVE WINS
                   </span>
-                  <h3 className="text-2xl sm:text-3xl lg:text-[34px] font-bold text-zinc-950 tracking-tight font-gilroy mb-2">
+                  <h3 className="text-xl sm:text-2xl lg:text-[34px] font-bold text-zinc-950 tracking-tight font-gilroy mb-1.5 sm:mb-2">
                     Podium Finishes
                   </h3>
                   <p className="text-xs sm:text-sm text-zinc-600 max-w-[280px] leading-relaxed font-medium">
@@ -230,7 +314,7 @@ export default function Home() {
           </div>
 
           {/* ── CARD 03: AI FOCUS ── */}
-          <div className="rounded-[28px] border border-white/10 bg-[#0d0d12] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white/20 hover:shadow-[0_16px_48px_rgba(0,0,0,0.7)]">
+          <div className="rounded-[24px] sm:rounded-[28px] border border-white/10 bg-[#0d0d12] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white/20 hover:shadow-[0_16px_48px_rgba(0,0,0,0.7)]">
             <PixelSwap
               aspectRatio="16 / 11"
               pattern="random"
@@ -245,21 +329,21 @@ export default function Home() {
               randomness={0}
               fade={true}
               firstContent={
-                <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-[#0b0b10] select-none">
-                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-400 mb-3">
+                <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 sm:p-8 bg-[#0b0b10] select-none">
+                  <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-400 mb-2 sm:mb-3">
                     03 / AI FOCUS
                   </span>
-                  <h3 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy">
+                  <h3 className="text-2xl sm:text-3xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy">
                     AI Systems
                   </h3>
                 </div>
               }
               secondContent={
-                <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-white text-zinc-950 select-none">
-                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-500 mb-2.5">
+                <div className="w-full h-full flex flex-col items-center justify-center text-center p-5 sm:p-8 bg-white text-zinc-950 select-none">
+                  <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-500 mb-2">
                     SPECIALIZATION
                   </span>
-                  <h3 className="text-2xl sm:text-3xl lg:text-[34px] font-bold text-zinc-950 tracking-tight font-gilroy mb-2">
+                  <h3 className="text-xl sm:text-2xl lg:text-[34px] font-bold text-zinc-950 tracking-tight font-gilroy mb-1.5 sm:mb-2">
                     Intelligent Agents
                   </h3>
                   <p className="text-xs sm:text-sm text-zinc-600 max-w-[280px] leading-relaxed font-medium">

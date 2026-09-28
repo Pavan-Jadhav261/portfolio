@@ -173,6 +173,7 @@ export interface RippleDistortionProps {
   enabled?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  onLoad?: () => void;
 }
 
 const RippleDistortion: React.FC<RippleDistortionProps> = ({
@@ -196,7 +197,8 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
   brightness = 1.15,
   enabled = true,
   className = '',
-  style
+  style,
+  onLoad
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const configRef = useRef<{
@@ -243,14 +245,30 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
     canvas.style.display = 'block';
     mount.appendChild(canvas);
 
-    const imageTexture = new Texture(gl, {
+    // Safely check for anisotropic filtering on mobile GPUs
+    let anisotropyVal = 0;
+    try {
+      const ext = gl.renderer.getExtension('EXT_texture_filter_anisotropic');
+      if (ext) {
+        const max = gl.getParameter((ext as any).MAX_TEXTURE_MAX_ANISOTROPY_EXT || 0x84FF);
+        anisotropyVal = max ? Math.min(16, max) : 0;
+      }
+    } catch {
+      anisotropyVal = 0;
+    }
+
+    const textureOptions: any = {
       generateMipmaps: true,
       minFilter: gl.LINEAR_MIPMAP_LINEAR,
       magFilter: gl.LINEAR,
       wrapS: gl.CLAMP_TO_EDGE,
-      wrapT: gl.CLAMP_TO_EDGE,
-      anisotropy: 16
-    });
+      wrapT: gl.CLAMP_TO_EDGE
+    };
+    if (anisotropyVal > 0) {
+      textureOptions.anisotropy = anisotropyVal;
+    }
+
+    const imageTexture = new Texture(gl, textureOptions);
 
     let disposed = false;
     const image = new window.Image();
@@ -260,10 +278,11 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
       imageTexture.image = image;
       imageTexture.needsUpdate = true;
       compositeUniforms.uTextureSize.value = [image.naturalWidth || 1798, image.naturalHeight || 875];
+      onLoad?.();
     };
     image.onload = handleLoaded;
     image.src = src;
-    if (image.complete) {
+    if (image.complete && image.naturalWidth > 0) {
       handleLoaded();
     }
 
