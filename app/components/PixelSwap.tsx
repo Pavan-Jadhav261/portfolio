@@ -345,9 +345,7 @@ export default function PixelSwap({
         onFocus: () => requestActive(true),
         onBlur: () => requestActive(false),
         onClick: () => {
-          if (typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches) {
-            requestActive(!desiredActive);
-          }
+          requestActive(!desiredActive);
         },
         tabIndex: 0
       };

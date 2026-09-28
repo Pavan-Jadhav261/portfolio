@@ -9,7 +9,7 @@ interface Project {
   description: string;
   tags: string[];
   visualType: string;
-  link?: string;
+  repoUrl: string;
 }
 
 const projects: Project[] = [
@@ -17,55 +17,55 @@ const projects: Project[] = [
     id: "01",
     name: "MENTORA AI",
     category: "AI / EDUCATION",
-    description: "An AI learning system designed to teach students how to think — not simply give them answers.",
-    tags: ["GEMMA", "RAG", "AI TUTOR", "CODE VISUALIZATION"],
+    description: "An AI-powered learning platform that uses local LLMs to provide personalized tutoring, interactive concept explanations, algorithm visualization, and coding assistance.",
+    tags: ["LOCAL LLMS", "RAG", "ALGORITHM VIZ", "TYPESCRIPT"],
     visualType: "mentora",
-    link: "#"
+    repoUrl: "https://github.com/Pavan-Jadhav261/mentoraAi"
   },
   {
     id: "02",
-    name: "ABHA+",
-    category: "AI / HEALTHCARE",
-    description: "Unified healthcare data pipeline with intelligent patient triage and secure EHR synchronization.",
-    tags: ["FASTAPI", "OCR", "HEALTH LLM", "SECURE EHR"],
-    visualType: "abha",
-    link: "#"
+    name: "SCHEMESATHI",
+    category: "CIVIC / AI",
+    description: "AI-powered platform that helps users discover government schemes based on their eligibility, with benefits, documents, and application guidance. Includes an intelligent browser extension.",
+    tags: ["TYPESCRIPT", "BROWSER EXTENSION", "VECTOR RAG", "ELIGIBILITY ENGINE"],
+    visualType: "schemesathi",
+    repoUrl: "https://github.com/Pavan-Jadhav261/SchemeSathi"
   },
   {
     id: "03",
-    name: "SMART FAQ",
-    category: "CIVIC / AI",
-    description: "Instant civic query assistance and multilingual public scheme retrieval powered by grounded LLMs.",
-    tags: ["MULTILINGUAL", "VECTOR SEARCH", "EMBEDDINGS", "NEXT.JS"],
-    visualType: "smartfaq",
-    link: "#"
+    name: "ABHA+",
+    category: "AI / HEALTHCARE",
+    description: "Ayushman Bharat Digital Mission (ABHA) healthcare system, integrating digital health IDs, clinical record triage, and secure citizen EHR access.",
+    tags: ["TYPESCRIPT", "HEALTHCARE AI", "FHIR API", "SECURE EHR"],
+    visualType: "abha",
+    repoUrl: "https://github.com/Pavan-Jadhav261/ABHA-"
   },
   {
     id: "04",
     name: "FLOWER DETECTOR",
     category: "COMPUTER VISION",
-    description: "Sub-millisecond botanical classification and disease diagnosis executing high-FPS inference on edge devices.",
-    tags: ["YOLOV11", "OPENCV", "TENSORFLOW LITE", "EDGE CV"],
+    description: "YOLO computer vision flower detection and botanical classification model trained from scratch for 100 epochs, optimized for high-FPS edge inference.",
+    tags: ["PYTHON", "YOLO", "OPENCV", "EDGE INFERENCE"],
     visualType: "flower",
-    link: "#"
+    repoUrl: "https://github.com/Pavan-Jadhav261/flower-detector-yolo"
   },
   {
     id: "05",
-    name: "AI DATA AGENT",
-    category: "MULTIMODAL AI",
-    description: "Autonomous multi-agent orchestration for dynamic SQL generation, dataset synthesis, and visual charts.",
-    tags: ["LANGGRAPH", "PYTHON", "MULTIMODAL", "AUTONOMOUS"],
-    visualType: "dataagent",
-    link: "#"
+    name: "TEXT TO 3D",
+    category: "3D GENERATIVE AI",
+    description: "A Blender-based Text-to-3D system that converts natural language descriptions into 3D shapes and procedural scenes using AI prompts.",
+    tags: ["TYPESCRIPT", "PYTHON", "BLENDER API", "GENERATIVE 3D"],
+    visualType: "text3d",
+    repoUrl: "https://github.com/Pavan-Jadhav261/text-to-3d"
   }
 ];
 
 const labExperiments = [
-  { id: "EXP / 001", name: "LOCAL GEMMA", status: "ACTIVE", statusColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" },
-  { id: "EXP / 002", name: "RAG PIPELINE", status: "WORKING", statusColor: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
-  { id: "EXP / 003", name: "YOLO + OPENCV", status: "WORKING", statusColor: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
-  { id: "EXP / 004", name: "MULTIMODAL AI", status: "TESTING", statusColor: "text-sky-400 bg-sky-500/10 border-sky-500/30" },
-  { id: "EXP / 005", name: "QLoRA / POST-TRAINING", status: "EXPLORING", statusColor: "text-[#ff2a5f] bg-[#ff2a5f]/10 border-[#ff2a5f]/30" },
+  { id: "EXP / 001", name: "LOCAL GEMMA (MENTORA AI)", status: "ACTIVE", statusColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30", repo: "https://github.com/Pavan-Jadhav261/mentoraAi" },
+  { id: "EXP / 002", name: "SCHEMESATHI RAG PIPELINE", status: "WORKING", statusColor: "text-amber-400 bg-amber-500/10 border-amber-500/30", repo: "https://github.com/Pavan-Jadhav261/SchemeSathi" },
+  { id: "EXP / 003", name: "YOLO FLOWER & OBJECT DETECTOR", status: "WORKING", statusColor: "text-amber-400 bg-amber-500/10 border-amber-500/30", repo: "https://github.com/Pavan-Jadhav261/flower-detector-yolo" },
+  { id: "EXP / 004", name: "BLENDER TEXT-TO-3D PIPELINE", status: "TESTING", statusColor: "text-sky-400 bg-sky-500/10 border-sky-500/30", repo: "https://github.com/Pavan-Jadhav261/text-to-3d" },
+  { id: "EXP / 005", name: "LEETCODE AI ASSISTANT EXTENSION", status: "WORKING", statusColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30", repo: "https://github.com/Pavan-Jadhav261/chrome-extension-leetcodeAssistant" },
 ];
 
 const steps = [
@@ -191,62 +191,67 @@ export default function WorkSection() {
                   {/* Dynamic Visual Mock for Selected Project */}
                   <div className="w-full max-w-xl font-mono text-left text-xs bg-[#0b0b10] border border-white/10 rounded-lg p-4 sm:p-5 shadow-inner">
                     <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10 text-[11px] text-zinc-500">
-                      <span className="text-zinc-400">~/projects/{activeProject.name.toLowerCase().replace(/\s+/g, '-')}</span>
-                      <span className="text-emerald-400">● live</span>
+                      <span className="text-zinc-400">~/github/Pavan-Jadhav261/{activeProject.name.toLowerCase().replace(/\s+/g, '-')}</span>
+                      <span className="text-emerald-400">● public repo</span>
                     </div>
 
                     {activeProject.visualType === "mentora" && (
                       <div className="space-y-2 text-zinc-300">
-                        <p className="text-zinc-500">// Real-time Socratic Dialogue &amp; Execution Graph</p>
+                        <p className="text-zinc-500">// Local LLM Socratic Dialogue &amp; Algorithm Visualization</p>
                         <p><span className="text-[#ff2a5f]">&gt;</span> Student: &quot;Why does my binary search loop infinitely?&quot;</p>
-                        <p><span className="text-emerald-400">&gt;</span> Mentora: &quot;Notice condition (low &lt;= high). What happens when high equals low + 1 without mid offset?&quot;</p>
-                        <p className="text-[10px] text-zinc-500 pt-1">[AST Node: LoopInvariant &bull; Context Confidence: 99.4%]</p>
+                        <p><span className="text-emerald-400">&gt;</span> Mentora AI: &quot;Look at line 14: (low &lt;= high). What happens when high equals low + 1 without mid offset?&quot;</p>
+                        <p className="text-[10px] text-zinc-500 pt-1">[AST Node: BinarySearchInvariant &bull; Latency: 18ms &bull; Model: Local Gemma]</p>
+                      </div>
+                    )}
+
+                    {activeProject.visualType === "schemesathi" && (
+                      <div className="space-y-2 text-zinc-300">
+                        <p className="text-zinc-500">// Citizen Eligibility Engine &amp; Extension Assistant</p>
+                        <p><span className="text-[#ff2a5f]">&gt;</span> User Profile: Student &bull; State: Maharashtra &bull; Income: &lt; 2.5 LPA</p>
+                        <p><span className="text-emerald-400">&gt;</span> Match: PM Vidyalaxmi Scheme [Eligibility Score: 98.6%]</p>
+                        <p><span className="text-purple-400">&gt;</span> Action: 4 required verification documents automatically checklist-generated</p>
                       </div>
                     )}
 
                     {activeProject.visualType === "abha" && (
                       <div className="space-y-2 text-zinc-300">
-                        <p className="text-zinc-500">// National Health Stack &amp; Triage Engine</p>
-                        <p><span className="text-[#ff2a5f]">&gt;</span> ABHA-ID: <span className="text-white">91-4821-9021-4412</span> [Verified]</p>
-                        <p><span className="text-emerald-400">&gt;</span> Ingestion: Clinical Records OCR &rarr; FHIR JSON normalized</p>
-                        <p><span className="text-sky-400">&gt;</span> AI Triage: Vitals stable &bull; Prioritized for OPD consultation</p>
-                      </div>
-                    )}
-
-                    {activeProject.visualType === "smartfaq" && (
-                      <div className="space-y-2 text-zinc-300">
-                        <p className="text-zinc-500">// Grounded RAG Civic Portal</p>
-                        <p><span className="text-[#ff2a5f]">&gt;</span> Query: &quot;How to claim agricultural subsidy in Marathi?&quot;</p>
-                        <p><span className="text-emerald-400">&gt;</span> Vector Search: 3 relevant clauses retrieved (cosine sim: 0.94)</p>
-                        <p><span className="text-purple-400">&gt;</span> Response synthesized with official state portal citations</p>
+                        <p className="text-zinc-500">// National Health Stack (ABDM) Integration</p>
+                        <p><span className="text-[#ff2a5f]">&gt;</span> ABHA-ID: <span className="text-white">91-4821-9021-4412</span> [ABDM Authenticated]</p>
+                        <p><span className="text-emerald-400">&gt;</span> EHR Ingestion: Clinical Diagnostic Records &rarr; FHIR JSON normalized</p>
+                        <p><span className="text-sky-400">&gt;</span> Secure Triage: Vitals synchronized across primary healthcare network</p>
                       </div>
                     )}
 
                     {activeProject.visualType === "flower" && (
                       <div className="space-y-2 text-zinc-300">
-                        <p className="text-zinc-500">// Edge Computer Vision Pipeline</p>
-                        <p><span className="text-[#ff2a5f]">&gt;</span> Input Stream: 1080p @ 60 FPS &bull; Inference Latency: 13.8ms</p>
-                        <p><span className="text-emerald-400">&gt;</span> Detected: Hibiscus rosa-sinensis [Confidence: 99.2%]</p>
-                        <p><span className="text-amber-400">&gt;</span> Health Status: Healthy foliage &bull; No fungal pathogen detected</p>
+                        <p className="text-zinc-500">// YOLO Object Detection &amp; Edge Inference (100 Epochs)</p>
+                        <p><span className="text-[#ff2a5f]">&gt;</span> Stream: OpenCV 1080p @ 60 FPS &bull; Inference Latency: 13.8ms</p>
+                        <p><span className="text-emerald-400">&gt;</span> BBox Detection: Hibiscus rosa-sinensis [Confidence: 99.2%]</p>
+                        <p><span className="text-amber-400">&gt;</span> Model Weights: Custom trained from scratch with PyTorch / YOLO</p>
                       </div>
                     )}
 
-                    {activeProject.visualType === "dataagent" && (
+                    {activeProject.visualType === "text3d" && (
                       <div className="space-y-2 text-zinc-300">
-                        <p className="text-zinc-500">// Autonomous Multi-Agent Query Loop</p>
-                        <p><span className="text-[#ff2a5f]">&gt;</span> Planner: Decomposed &quot;Analyze Q3 revenue vs customer churn&quot;</p>
-                        <p><span className="text-emerald-400">&gt;</span> Tool Call: Executed safe SQL aggregation across 4 tables</p>
-                        <p><span className="text-sky-400">&gt;</span> Chart Engine: Interactive scatter visual compiled in 180ms</p>
+                        <p className="text-zinc-500">// Procedural Blender Text-to-3D Synthesis</p>
+                        <p><span className="text-[#ff2a5f]">&gt;</span> Input Prompt: &quot;Low-poly futuristic communication satellite&quot;</p>
+                        <p><span className="text-emerald-400">&gt;</span> Python Blender API: 14 mesh primitives generated &amp; UV unwrapped</p>
+                        <p><span className="text-sky-400">&gt;</span> Render Output: .OBJ / .GLTF export compiled in 1.4s</p>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* View Project Action */}
-              <div className="flex justify-end pt-4 border-t border-white/10">
+              {/* View Project Action linking to real GitHub repo */}
+              <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                <span className="text-[11px] font-mono text-zinc-500">
+                  github.com/Pavan-Jadhav261/{activeProject.name.toLowerCase().replace(/\s+/g, '-')}
+                </span>
                 <a
-                  href={activeProject.link || "#"}
+                  href={activeProject.repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group inline-flex items-center gap-2 text-xs sm:text-sm font-mono tracking-wider text-white hover:text-[#ff2a5f] transition-colors"
                 >
                   <span className="font-semibold uppercase">VIEW PROJECT</span>
@@ -272,17 +277,20 @@ export default function WorkSection() {
           {/* Table / Terminal List (matching Image 3) */}
           <div className="rounded-2xl border border-white/10 bg-[#0d0d12] overflow-hidden divide-y divide-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
             {labExperiments.map((exp, i) => (
-              <div
+              <a
                 key={i}
-                className="flex items-center justify-between p-4 sm:p-5 hover:bg-white/[0.025] transition-colors font-mono text-xs sm:text-sm"
+                href={exp.repo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-4 sm:p-5 hover:bg-white/[0.025] transition-colors font-mono text-xs sm:text-sm group"
               >
                 {/* Exp Number */}
-                <span className="text-zinc-500 font-medium tracking-wider w-24 sm:w-32">
+                <span className="text-zinc-500 font-medium tracking-wider w-24 sm:w-32 group-hover:text-zinc-400">
                   {exp.id}
                 </span>
 
                 {/* Exp Name */}
-                <span className="text-white font-semibold tracking-wider flex-1 px-3">
+                <span className="text-white font-semibold tracking-wider flex-1 px-3 group-hover:text-zinc-200">
                   {exp.name}
                 </span>
 
@@ -293,7 +301,7 @@ export default function WorkSection() {
                     <span>{exp.status}</span>
                   </span>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
@@ -345,7 +353,7 @@ export default function WorkSection() {
             {/* ─────────────────────────────────────────────────────────────
                 WHAT'S NEXT? (matching Image 1)
                ───────────────────────────────────────────────────────────── */}
-            <div className="w-full max-w-2xl rounded-2xl border border-dashed border-white/25 bg-[#0d0d12] p-8 sm:p-12 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+            <div id="contact" className="w-full max-w-2xl rounded-2xl border border-dashed border-white/25 bg-[#0d0d12] p-8 sm:p-12 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
               <div className="flex flex-col space-y-6 text-left">
                 <span className="text-xs sm:text-sm font-mono tracking-[0.25em] text-zinc-400 uppercase font-bold">
                   WHAT&apos;S NEXT?
@@ -356,9 +364,28 @@ export default function WorkSection() {
                   I haven&apos;t built yet.
                 </div>
 
-                <div className="flex justify-end pt-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-white/10">
+                  <div className="flex items-center gap-4 text-xs font-mono text-zinc-400">
+                    <a
+                      href="https://github.com/Pavan-Jadhav261"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-white transition-colors"
+                    >
+                      github.com/Pavan-Jadhav261
+                    </a>
+                    <span>&bull;</span>
+                    <a
+                      href="https://www.linkedin.com/in/pavan-jadhav261/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-white transition-colors"
+                    >
+                      linkedin/pavan-jadhav261
+                    </a>
+                  </div>
                   <a
-                    href="mailto:jadhavpavan135@gmail.com"
+                    href="mailto:pavanjadhav5331@gmail.com"
                     className="group inline-flex items-center gap-3 px-5 py-2.5 rounded-lg border border-white/20 bg-white/[0.04] hover:bg-[#ff2a5f] hover:border-[#ff2a5f] hover:text-white transition-all duration-300 font-mono text-xs sm:text-sm tracking-wider uppercase font-semibold text-white shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
                   >
                     <span>LET&apos;S BUILD IT</span>

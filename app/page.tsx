@@ -9,6 +9,7 @@ import GlareHover from "./components/GlareHover";
 import ClickSpark from "./components/ClickSpark";
 import FlipCard from "./components/FlipCard";
 import WorkSection from "./components/WorkSection";
+import AIAssistant from "./components/AIAssistant";
 
 export default function Home() {
   const [assetsReady, setAssetsReady] = useState(false);
@@ -221,7 +222,7 @@ export default function Home() {
 
             <div className="flex items-center gap-6">
               <a
-                href="https://github.com"
+                href="https://github.com/Pavan-Jadhav261"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors"
@@ -229,7 +230,7 @@ export default function Home() {
                 GitHub
               </a>
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/in/pavan-jadhav261/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors"
@@ -237,7 +238,7 @@ export default function Home() {
                 LinkedIn
               </a>
               <a
-                href="mailto:contact@example.com"
+                href="mailto:pavanjadhav5331@gmail.com"
                 className="hover:text-white transition-colors"
               >
                 Email
@@ -287,22 +288,30 @@ export default function Home() {
                     <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-400 mb-2 sm:mb-3">
                       01 / BUILDER
                     </span>
-                    <h3 className="text-2xl sm:text-3xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy">
-                      10+ Projects
+                    <h3 className="text-2xl sm:text-3xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy mb-3 md:mb-0">
+                      20+ Repos
                     </h3>
+                    <div className="md:hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-[10px] font-mono tracking-wider text-zinc-300 shadow-[0_2px_10px_rgba(0,0,0,0.4)]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#ff2a5f] animate-pulse" />
+                      <span>CURIOUS? TAP IT</span>
+                    </div>
                   </div>
                 }
                 secondContent={
                   <div className="w-full h-full flex flex-col items-center justify-center text-center p-5 sm:p-8 bg-white text-zinc-950 select-none">
                     <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-500 mb-2">
-                      FULL-STACK &amp; AI
+                      OPEN-SOURCE &amp; AI
                     </span>
                     <h3 className="text-xl sm:text-2xl lg:text-[34px] font-bold text-zinc-950 tracking-tight font-gilroy mb-1.5 sm:mb-2">
-                      Production Apps
+                      22 Repositories
                     </h3>
-                    <p className="text-xs sm:text-sm text-zinc-600 max-w-[280px] leading-relaxed font-medium">
-                      Shipped 10+ end-to-end intelligent applications and production-ready tools built from scratch.
+                    <p className="text-xs sm:text-sm text-zinc-600 max-w-[280px] leading-relaxed font-medium mb-3 md:mb-0">
+                      Architected 20+ intelligent applications, local AI tools, and computer vision models on GitHub.
                     </p>
+                    <div className="md:hidden mt-3 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100 border border-zinc-200 text-[10px] font-mono tracking-wider text-zinc-600">
+                      <span>TAP TO FLIP BACK</span>
+                      <span>↻</span>
+                    </div>
                   </div>
                 }
               />
@@ -328,9 +337,13 @@ export default function Home() {
                     <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-400 mb-2 sm:mb-3">
                       02 / HACKATHON
                     </span>
-                    <h3 className="text-2xl sm:text-3xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy">
-                      2&times; Podiums
+                    <h3 className="text-2xl sm:text-3xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy mb-3 md:mb-0">
+                      5&times; Winners
                     </h3>
+                    <div className="md:hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-[10px] font-mono tracking-wider text-zinc-300 shadow-[0_2px_10px_rgba(0,0,0,0.4)]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#ff2a5f] animate-pulse" />
+                      <span>CURIOUS? TAP IT</span>
+                    </div>
                   </div>
                 }
                 secondContent={
@@ -339,11 +352,15 @@ export default function Home() {
                       COMPETITIVE WINS
                     </span>
                     <h3 className="text-xl sm:text-2xl lg:text-[34px] font-bold text-zinc-950 tracking-tight font-gilroy mb-1.5 sm:mb-2">
-                      Podium Finishes
+                      Hackathon Winner
                     </h3>
-                    <p className="text-xs sm:text-sm text-zinc-600 max-w-[280px] leading-relaxed font-medium">
-                      Multiple podium placements in fast-paced hackathons, architecting working MVPs under 24&ndash;48h.
+                    <p className="text-xs sm:text-sm text-zinc-600 max-w-[280px] leading-relaxed font-medium mb-3 md:mb-0">
+                      5&times; winner in fast-paced hackathons, architecting working MVPs under 24&ndash;48h.
                     </p>
+                    <div className="md:hidden mt-3 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100 border border-zinc-200 text-[10px] font-mono tracking-wider text-zinc-600">
+                      <span>TAP TO FLIP BACK</span>
+                      <span>↻</span>
+                    </div>
                   </div>
                 }
               />
@@ -369,9 +386,13 @@ export default function Home() {
                     <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-400 mb-2 sm:mb-3">
                       03 / AI FOCUS
                     </span>
-                    <h3 className="text-2xl sm:text-3xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy">
+                    <h3 className="text-2xl sm:text-3xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy mb-3 md:mb-0">
                       AI Systems
                     </h3>
+                    <div className="md:hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-[10px] font-mono tracking-wider text-zinc-300 shadow-[0_2px_10px_rgba(0,0,0,0.4)]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#ff2a5f] animate-pulse" />
+                      <span>CURIOUS? TAP IT</span>
+                    </div>
                   </div>
                 }
                 secondContent={
@@ -382,9 +403,13 @@ export default function Home() {
                     <h3 className="text-xl sm:text-2xl lg:text-[34px] font-bold text-zinc-950 tracking-tight font-gilroy mb-1.5 sm:mb-2">
                       Intelligent Agents
                     </h3>
-                    <p className="text-xs sm:text-sm text-zinc-600 max-w-[280px] leading-relaxed font-medium">
+                    <p className="text-xs sm:text-sm text-zinc-600 max-w-[280px] leading-relaxed font-medium mb-3 md:mb-0">
                       Specialized in autonomous multi-agent pipelines, fine-tuning LLMs, and real-time vision architectures.
                     </p>
+                    <div className="md:hidden mt-3 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100 border border-zinc-200 text-[10px] font-mono tracking-wider text-zinc-600">
+                      <span>TAP TO FLIP BACK</span>
+                      <span>↻</span>
+                    </div>
                   </div>
                 }
               />
@@ -446,7 +471,8 @@ export default function Home() {
                         </p>
                       </div>
                       <div className="pt-2 text-[11px] font-mono text-zinc-500 group-hover:text-zinc-300 transition-colors flex items-center gap-1.5">
-                        <span>click to flip</span>
+                        <span className="sm:hidden text-zinc-300 font-semibold tracking-wider text-[10px]">CURIOUS? TAP IT</span>
+                        <span className="hidden sm:inline">click to flip</span>
                         <span className="text-[12px] opacity-70">↻</span>
                       </div>
                     </div>
@@ -463,7 +489,8 @@ export default function Home() {
                         </p>
                       </div>
                       <div className="pt-2 text-[11px] font-mono text-zinc-400 group-hover:text-zinc-600 transition-colors flex items-center gap-1.5">
-                        <span>click to flip</span>
+                        <span className="sm:hidden text-zinc-500 font-medium tracking-wider text-[10px]">TAP TO FLIP BACK</span>
+                        <span className="hidden sm:inline">click to flip</span>
                         <span className="text-[12px] opacity-70">↻</span>
                       </div>
                     </div>
@@ -478,6 +505,44 @@ export default function Home() {
             SECTION 3: SELECTED BUILDS, THE LAB, HOW IT HAPPENS, WHAT'S NEXT
            ───────────────────────────────────────────────────────────── */}
         <WorkSection />
+
+        {/* Footer with real links */}
+        <footer className="relative z-10 w-full border-t border-white/[0.08] bg-black py-10 px-5 sm:px-12 md:px-16 lg:px-24 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-zinc-500">
+          <div className="flex items-center gap-2 text-zinc-400">
+            <span className="w-2 h-2 rounded-full bg-[#ff2a5f]" />
+            <span className="tracking-wider uppercase font-semibold text-white">PAVAN JADHAV</span>
+            <span>&bull;</span>
+            <span>2026</span>
+          </div>
+
+          <div className="flex items-center gap-6 text-zinc-400">
+            <a
+              href="https://github.com/Pavan-Jadhav261"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://www.linkedin.com/in/pavan-jadhav261/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              LinkedIn
+            </a>
+            <a
+              href="mailto:pavanjadhav5331@gmail.com"
+              className="hover:text-white transition-colors"
+            >
+              Email
+            </a>
+          </div>
+        </footer>
+
+        {/* Floating AI Assistant in bottom-right corner */}
+        <AIAssistant />
       </main>
     </ClickSpark>
   );
