@@ -15,15 +15,6 @@ interface Project {
 const projects: Project[] = [
   {
     id: "01",
-    name: "MENTORA AI",
-    category: "AI / EDUCATION",
-    description: "An AI-powered learning platform that uses local LLMs to provide personalized tutoring, interactive concept explanations, algorithm visualization, and coding assistance.",
-    tags: ["LOCAL LLMS", "RAG", "ALGORITHM VIZ", "TYPESCRIPT"],
-    visualType: "mentora",
-    repoUrl: "https://github.com/Pavan-Jadhav261/mentoraAi"
-  },
-  {
-    id: "02",
     name: "SCHEMESATHI",
     category: "CIVIC / AI",
     description: "AI-powered platform that helps users discover government schemes based on their eligibility, with benefits, documents, and application guidance. Includes an intelligent browser extension.",
@@ -32,7 +23,25 @@ const projects: Project[] = [
     repoUrl: "https://github.com/Pavan-Jadhav261/SchemeSathi"
   },
   {
+    id: "02",
+    name: "TEXT TO 3D",
+    category: "3D GENERATIVE AI",
+    description: "A Blender-based Text-to-3D system that converts natural language descriptions into 3D shapes and procedural scenes using AI prompts.",
+    tags: ["TYPESCRIPT", "PYTHON", "BLENDER API", "GENERATIVE 3D"],
+    visualType: "text3d",
+    repoUrl: "https://github.com/Pavan-Jadhav261/text-to-3d"
+  },
+  {
     id: "03",
+    name: "MENTORA AI",
+    category: "AI / EDUCATION",
+    description: "An AI-powered learning platform that uses local LLMs to provide personalized tutoring, interactive concept explanations, algorithm visualization, and coding assistance.",
+    tags: ["LOCAL LLMS", "RAG", "ALGORITHM VIZ", "TYPESCRIPT"],
+    visualType: "mentora",
+    repoUrl: "https://github.com/Pavan-Jadhav261/mentoraAi"
+  },
+  {
+    id: "04",
     name: "ABHA+",
     category: "AI / HEALTHCARE",
     description: "Ayushman Bharat Digital Mission (ABHA) healthcare system, integrating digital health IDs, clinical record triage, and secure citizen EHR access.",
@@ -41,30 +50,21 @@ const projects: Project[] = [
     repoUrl: "https://github.com/Pavan-Jadhav261/ABHA-"
   },
   {
-    id: "04",
+    id: "05",
     name: "FLOWER DETECTOR",
     category: "COMPUTER VISION",
     description: "YOLO computer vision flower detection and botanical classification model trained from scratch for 100 epochs, optimized for high-FPS edge inference.",
     tags: ["PYTHON", "YOLO", "OPENCV", "EDGE INFERENCE"],
     visualType: "flower",
     repoUrl: "https://github.com/Pavan-Jadhav261/flower-detector-yolo"
-  },
-  {
-    id: "05",
-    name: "TEXT TO 3D",
-    category: "3D GENERATIVE AI",
-    description: "A Blender-based Text-to-3D system that converts natural language descriptions into 3D shapes and procedural scenes using AI prompts.",
-    tags: ["TYPESCRIPT", "PYTHON", "BLENDER API", "GENERATIVE 3D"],
-    visualType: "text3d",
-    repoUrl: "https://github.com/Pavan-Jadhav261/text-to-3d"
   }
 ];
 
 const labExperiments = [
-  { id: "EXP / 001", name: "LOCAL GEMMA (MENTORA AI)", status: "ACTIVE", statusColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30", repo: "https://github.com/Pavan-Jadhav261/mentoraAi" },
-  { id: "EXP / 002", name: "SCHEMESATHI RAG PIPELINE", status: "WORKING", statusColor: "text-amber-400 bg-amber-500/10 border-amber-500/30", repo: "https://github.com/Pavan-Jadhav261/SchemeSathi" },
-  { id: "EXP / 003", name: "YOLO FLOWER & OBJECT DETECTOR", status: "WORKING", statusColor: "text-amber-400 bg-amber-500/10 border-amber-500/30", repo: "https://github.com/Pavan-Jadhav261/flower-detector-yolo" },
-  { id: "EXP / 004", name: "BLENDER TEXT-TO-3D PIPELINE", status: "TESTING", statusColor: "text-sky-400 bg-sky-500/10 border-sky-500/30", repo: "https://github.com/Pavan-Jadhav261/text-to-3d" },
+  { id: "EXP / 001", name: "SCHEMESATHI RAG PIPELINE", status: "WORKING", statusColor: "text-amber-400 bg-amber-500/10 border-amber-500/30", repo: "https://github.com/Pavan-Jadhav261/SchemeSathi" },
+  { id: "EXP / 002", name: "BLENDER TEXT-TO-3D PIPELINE", status: "TESTING", statusColor: "text-sky-400 bg-sky-500/10 border-sky-500/30", repo: "https://github.com/Pavan-Jadhav261/text-to-3d" },
+  { id: "EXP / 003", name: "LOCAL GEMMA (MENTORA AI)", status: "ACTIVE", statusColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30", repo: "https://github.com/Pavan-Jadhav261/mentoraAi" },
+  { id: "EXP / 004", name: "YOLO FLOWER & OBJECT DETECTOR", status: "WORKING", statusColor: "text-amber-400 bg-amber-500/10 border-amber-500/30", repo: "https://github.com/Pavan-Jadhav261/flower-detector-yolo" },
   { id: "EXP / 005", name: "LEETCODE AI ASSISTANT EXTENSION", status: "WORKING", statusColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30", repo: "https://github.com/Pavan-Jadhav261/chrome-extension-leetcodeAssistant" },
 ];
 

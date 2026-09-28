@@ -13,17 +13,15 @@ const CACHE_TTL_MS = 60 * 60 * 1000; // 1-hour in-memory cache for common questi
 let cachedSystemPrompt: string | null = null;
 
 function getSystemPrompt(): string {
-  if (cachedSystemPrompt) return cachedSystemPrompt;
   try {
     const promptPath = path.join(process.cwd(), "sytem-Prompt.md");
     if (fs.existsSync(promptPath)) {
-      cachedSystemPrompt = fs.readFileSync(promptPath, "utf-8");
-      return cachedSystemPrompt;
+      return fs.readFileSync(promptPath, "utf-8");
     }
   } catch (e) {
     console.error("Could not read sytem-Prompt.md:", e);
   }
-  return "You are Pavan Jadhav's AI on his personal portfolio. Smart engineer. Short answers (2-3 sentences max). Real personality. Zero corporate cringe.";
+  return "You are Pavan Jadhav's AI on his personal portfolio. Smart engineer. Short answers (2-3 sentences max). GitHub: https://github.com/Pavan-Jadhav261. LinkedIn: https://www.linkedin.com/in/pavan-jadhav261/. Email: pavanjadhav5331@gmail.com. Zero corporate cringe.";
 }
 
 // In-memory response cache to serve repeated queries with 0 token spend
@@ -73,11 +71,37 @@ function checkRateLimit(ip: string): { limited: boolean; retryAfter: number } {
 // Handles common portfolio queries locally without touching OpenAI API
 // ─────────────────────────────────────────────────────────────────────────────
 const FAQ_LOOKUP: Record<string, string> = {
-  "what are your top projects?": "My top builds are Mentora AI (Socratic learning platform with local Gemma LLMs & AST visualizer), SchemeSathi (civic welfare discovery engine), and an edge-trained YOLO flower detector. Check the Work section for repos!",
+  "what are your top projects?": "My top flagship projects are SchemeSathi (an AI-powered civic welfare discovery engine with a smart browser extension) and Text-to-3D (a procedural Blender Generative AI pipeline). Check them out in the Work section!",
   "what is your tech stack?": "Core stack: Python, TypeScript, PyTorch, YOLOv11, local LLMs (Gemma/Ollama), RAG, Next.js, FastAPI, and Docker. I specialize in post-training/fine-tuning & high-performance full-stack systems.",
+  "tell me about schemesathi": "SchemeSathi simplifies discovering public welfare schemes matching citizen eligibility with vector RAG and an intelligent automated Chrome extension: https://github.com/Pavan-Jadhav261/SchemeSathi",
+  "tell me about schemesatchi": "SchemeSathi simplifies discovering public welfare schemes matching citizen eligibility with vector RAG and an intelligent automated Chrome extension: https://github.com/Pavan-Jadhav261/SchemeSathi",
+  "tell me about text to 3d": "Text-to-3D is a Blender-based Generative AI system that converts natural language descriptions into 3D procedural shapes and scenes: https://github.com/Pavan-Jadhav261/text-to-3d",
+  "tell me about text-to-3d": "Text-to-3D is a Blender-based Generative AI system that converts natural language descriptions into 3D procedural shapes and scenes: https://github.com/Pavan-Jadhav261/text-to-3d",
   "tell me about mentora ai": "Mentora AI teaches students *how to think* rather than spoon-feeding answers. Built with local Gemma LLMs, Socratic prompts, AST algorithm visualizations, and RAG over coursework.",
   "how can i contact you?": "Hit me up directly at pavanjadhav5331@gmail.com or connect on LinkedIn at linkedin.com/in/pavan-jadhav261. Always open to talking AI engineering and hackathons!",
-  "who are you?": "I'm Pavan Jadhav — CSE 3rd year at BITM, Ballari. 5× hackathon winner building at the intersection of local LLM fine-tuning, computer vision, and systems engineering."
+  "who are you?": "I'm Pavan Jadhav — CSE 3rd year at BITM, Ballari. 5× hackathon winner building at the intersection of local LLM fine-tuning, computer vision, and systems engineering.",
+  "can you share his github?": "Here's my GitHub: https://github.com/Pavan-Jadhav261. You can check out 20+ open-source repos across SchemeSathi, Text-to-3D, and local LLMs.",
+  "can you share your github?": "Here's my GitHub: https://github.com/Pavan-Jadhav261. You'll find 20+ open-source repos including SchemeSathi and Text-to-3D.",
+  "what is your github?": "My GitHub is https://github.com/Pavan-Jadhav261 — 20+ repos covering SchemeSathi, Text-to-3D, local Gemma fine-tuning, and computer vision.",
+  "what is his github?": "Here's my GitHub: https://github.com/Pavan-Jadhav261",
+  "share github": "Here's my GitHub: https://github.com/Pavan-Jadhav261",
+  "github link": "Explore all 20+ open-source repos on my GitHub: https://github.com/Pavan-Jadhav261",
+  "github": "Explore all 20+ open-source repos on my GitHub: https://github.com/Pavan-Jadhav261",
+  "can you give me his linkedin?": "Here's Pavan's LinkedIn: https://www.linkedin.com/in/pavan-jadhav261/",
+  "can you share his linkedin?": "Here's Pavan's LinkedIn: https://www.linkedin.com/in/pavan-jadhav261/",
+  "what is his linkedin?": "Here's Pavan's LinkedIn: https://www.linkedin.com/in/pavan-jadhav261/",
+  "what is your linkedin?": "Here's my LinkedIn: https://www.linkedin.com/in/pavan-jadhav261/",
+  "linkedin": "Here's Pavan's LinkedIn: https://www.linkedin.com/in/pavan-jadhav261/",
+  "can you share his email?": "You can email Pavan at pavanjadhav5331@gmail.com",
+  "what is your email?": "You can reach me directly at pavanjadhav5331@gmail.com",
+  "what is his email?": "You can reach Pavan at pavanjadhav5331@gmail.com",
+  "email": "You can email Pavan at pavanjadhav5331@gmail.com",
+  "i want to participate a hackthon with pavan can you notify him?": "I can't notify Pavan directly. Reach him at pavanjadhav5331@gmail.com or on LinkedIn (https://www.linkedin.com/in/pavan-jadhav261/) and share the hackathon details!",
+  "i want to participate in a hackathon with pavan": "I can't notify Pavan directly. Connect with him on LinkedIn (https://www.linkedin.com/in/pavan-jadhav261/) or email pavanjadhav5331@gmail.com with the hackathon info!",
+  "instagram": "I can't share personal socials like Instagram or Snapchat. You can reach Pavan professionally via LinkedIn (https://www.linkedin.com/in/pavan-jadhav261/) or Email (pavanjadhav5331@gmail.com).",
+  "snapchat": "I can't share personal socials like Snapchat or Instagram. You can contact Pavan on LinkedIn (https://www.linkedin.com/in/pavan-jadhav261/) or Email (pavanjadhav5331@gmail.com).",
+  "can i get his instagram?": "I can't share personal socials like Instagram or Snapchat. You can reach Pavan on LinkedIn (https://www.linkedin.com/in/pavan-jadhav261/) or Email (pavanjadhav5331@gmail.com).",
+  "can i get his snapchat?": "I can't share personal socials like Snapchat or Instagram. You can reach Pavan on LinkedIn (https://www.linkedin.com/in/pavan-jadhav261/) or Email (pavanjadhav5331@gmail.com)."
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

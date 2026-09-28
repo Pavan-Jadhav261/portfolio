@@ -10,10 +10,12 @@ import ClickSpark from "./components/ClickSpark";
 import FlipCard from "./components/FlipCard";
 import WorkSection from "./components/WorkSection";
 import AIAssistant from "./components/AIAssistant";
+import AudioPlayer from "./components/AudioPlayer";
 
 export default function Home() {
   const [assetsReady, setAssetsReady] = useState(false);
   const [webglReady, setWebglReady] = useState(false);
+  const [landingPageAppeared, setLandingPageAppeared] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -45,8 +47,34 @@ export default function Home() {
       ? document.fonts.ready.catch(() => {})
       : Promise.resolve();
 
+    // 3. Preload French Montana soundtrack buffer
+    const preloadAudio = new Promise<void>((resolve) => {
+      try {
+        const audio = new Audio();
+        audio.src = encodeURI('/French montana unforgettable-instrumental - (320 Kbps).mp3');
+        audio.preload = 'auto';
+
+        let finished = false;
+        const onReady = () => {
+          if (!finished) {
+            finished = true;
+            resolve();
+          }
+        };
+
+        audio.addEventListener('canplay', onReady, { once: true });
+        audio.addEventListener('canplaythrough', onReady, { once: true });
+        audio.addEventListener('error', onReady, { once: true });
+
+        // Safety timeout of 2.2s so audio buffering doesn't hold up the screen indefinitely
+        setTimeout(onReady, 2200);
+      } catch {
+        resolve();
+      }
+    });
+
     // Ensure assets are downloaded before dismissing loader
-    Promise.all([preloadImage, preloadFonts]).then(() => {
+    Promise.all([preloadImage, preloadFonts, preloadAudio]).then(() => {
       if (isMounted) {
         // Minimum time of 600ms so progress displays smoothly
         setTimeout(() => {
@@ -70,6 +98,15 @@ export default function Home() {
   }, []);
 
   const isReady = assetsReady && webglReady;
+
+  const scrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.history.pushState(null, '', `#${id}`);
+    }
+  };
 
   const exploringTopics = [
     {
@@ -113,8 +150,11 @@ export default function Home() {
       duration={400}
     >
       <main className="relative w-full min-h-screen bg-black text-white font-gilroy selection:bg-[#ff2a5f] selection:text-white overflow-x-hidden">
-        {/* Loading Screen - blocks until background image, WebGL texture and fonts are fully downloaded */}
-        <LoadingScreen isReady={isReady} />
+        {/* Loading Screen - blocks until background image, WebGL texture, audio and fonts are ready */}
+        <LoadingScreen
+          isReady={isReady}
+          onFadeStart={() => setLandingPageAppeared(true)}
+        />
 
         {/* ─────────────────────────────────────────────────────────────
             SECTION 1: HERO LANDING (FULL VISIBLE HEIGHT WITH WEBGL BACKGROUND)
@@ -153,34 +193,40 @@ export default function Home() {
               </span>
             </Link>
 
-            <nav className="flex items-center gap-6 md:gap-8">
+            <nav className="flex items-center gap-3 sm:gap-6 md:gap-8">
               <div className="hidden sm:flex items-center gap-6 text-sm text-zinc-300 font-medium">
-                <Link
+                <a
                   href="#about"
-                  className="hover:text-white transition-colors tracking-wide drop-shadow"
+                  onClick={(e) => scrollTo(e, "about")}
+                  className="hover:text-white transition-colors tracking-wide drop-shadow cursor-pointer"
                 >
                   About
-                </Link>
-                <Link
-                  href="#overview"
-                  className="hover:text-white transition-colors tracking-wide drop-shadow"
+                </a>
+                <a
+                  href="#work"
+                  onClick={(e) => scrollTo(e, "work")}
+                  className="hover:text-white transition-colors tracking-wide drop-shadow cursor-pointer"
                 >
                   Work
-                </Link>
-                <Link
+                </a>
+                <a
                   href="#contact"
-                  className="hover:text-white transition-colors tracking-wide drop-shadow"
+                  onClick={(e) => scrollTo(e, "contact")}
+                  className="hover:text-white transition-colors tracking-wide drop-shadow cursor-pointer"
                 >
                   Contact
-                </Link>
+                </a>
               </div>
 
-              <Link
-                href="#contact"
-                className="px-4 py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-semibold border border-white/20 bg-black/40 hover:bg-white hover:text-black backdrop-blur-md transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+              {/* Soundtrack Equalizer & Sound Toggle */}
+              <AudioPlayer shouldPlay={landingPageAppeared} />
+
+              <a
+                href="mailto:pavanjadhav5331@gmail.com"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-semibold border border-white/20 bg-black/40 hover:bg-white hover:text-black backdrop-blur-md transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.5)] cursor-pointer whitespace-nowrap"
               >
                 Get In Touch
-              </Link>
+              </a>
             </nav>
           </header>
 
@@ -196,15 +242,17 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="flex items-center gap-3 pt-4 sm:pt-6 pointer-events-auto">
               <a
-                href="#overview"
-                className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full text-xs sm:text-sm font-bold bg-[#ff2a5f] text-white shadow-[0_0_24px_rgba(255,42,95,0.45)] hover:bg-[#ff154f] hover:shadow-[0_0_30px_rgba(255,42,95,0.6)] transition-all duration-300 flex items-center gap-2"
+                href="#work"
+                onClick={(e) => scrollTo(e, "work")}
+                className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full text-xs sm:text-sm font-bold bg-[#ff2a5f] text-white shadow-[0_0_24px_rgba(255,42,95,0.45)] hover:bg-[#ff154f] hover:shadow-[0_0_30px_rgba(255,42,95,0.6)] transition-all duration-300 flex items-center gap-2 cursor-pointer"
               >
                 <span>Explore My Work</span>
                 <span className="text-sm font-mono">&rarr;</span>
               </a>
               <a
-                href="#contact"
-                className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full text-xs sm:text-sm font-semibold bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/15 transition-all duration-300"
+                href="#about"
+                onClick={(e) => scrollTo(e, "about")}
+                className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full text-xs sm:text-sm font-semibold bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/15 transition-all duration-300 cursor-pointer"
               >
                 Learn More
               </a>
@@ -248,12 +296,13 @@ export default function Home() {
         </section>
 
         {/* ─────────────────────────────────────────────────────────────
-            SECTION 2: SCROLLABLE CARDS WITH PIXELSWAP EFFECT
+            SECTION 2: SCROLLABLE CARDS WITH PIXELSWAP EFFECT (ABOUT)
            ───────────────────────────────────────────────────────────── */}
         <section
-          id="overview"
-          className="relative w-full min-h-screen bg-gradient-to-b from-[#050507] via-[#09090d] to-[#040406] border-t border-white/[0.08] py-20 sm:py-28 md:py-32 px-5 sm:px-12 md:px-16 lg:px-24 overflow-hidden"
+          id="about"
+          className="relative w-full min-h-screen bg-gradient-to-b from-[#050507] via-[#09090d] to-[#040406] border-t border-white/[0.08] py-20 sm:py-28 md:py-32 px-5 sm:px-12 md:px-16 lg:px-24 overflow-hidden scroll-mt-6"
         >
+          <span id="overview" className="sr-only" />
           {/* Subtle Ambient Glow matching theme */}
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] max-w-full h-[400px] bg-[#ff2a5f]/[0.035] blur-[160px] pointer-events-none rounded-full" />
 

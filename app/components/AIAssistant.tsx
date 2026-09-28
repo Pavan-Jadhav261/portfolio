@@ -12,22 +12,27 @@ interface Message {
 
 const KNOWLEDGE_BASE = [
   {
-    keywords: ['project', 'build', 'work', 'portfolio', 'created', 'made'],
-    response: "I've built 20+ open-source repositories and production tools! Key highlights include:\n\n• **Mentora AI**: Socratic AI learning platform using local LLMs & algorithm visualization.\n• **SchemeSathi**: Citizen scheme discovery engine with an intelligent Chrome extension.\n• **ABHA+**: Ayushman Bharat healthcare stack with triage & FHIR normalization.\n• **Flower Detector**: Real-time YOLOv11 computer vision model trained from scratch.\n• **Text-to-3D**: Procedural Blender generative 3D pipeline.",
+    keywords: ['project', 'build', 'work', 'portfolio', 'created', 'made', 'top project', 'flagship'],
+    response: "I've built 20+ open-source repositories and production tools! My top flagship builds are:\n\n• **SchemeSathi**: AI-powered citizen welfare scheme discovery engine with an intelligent Chrome extension.\n• **Text-to-3D**: Procedural Blender generative 3D pipeline converting natural language prompts into 3D meshes.\n• **Mentora AI**: Socratic AI learning platform using local LLMs & algorithm visualization.\n• **ABHA+**: Ayushman Bharat healthcare stack with triage & FHIR normalization.\n• **Flower Detector**: Real-time YOLOv11 computer vision model trained from scratch.",
     links: [
-      { label: "View Mentora AI", url: "https://github.com/Pavan-Jadhav261/mentoraAi" },
-      { label: "View SchemeSathi", url: "https://github.com/Pavan-Jadhav261/SchemeSathi" }
+      { label: "View SchemeSathi", url: "https://github.com/Pavan-Jadhav261/SchemeSathi" },
+      { label: "View Text-to-3D", url: "https://github.com/Pavan-Jadhav261/text-to-3d" }
     ]
+  },
+  {
+    keywords: ['schemesathi', 'schemesatchi', 'scheme', 'government', 'civic', 'welfare'],
+    response: "**SchemeSathi** simplifies discovering public welfare schemes based on personalized eligibility criteria (income, student status, state). Includes an automated browser extension for instant application guidance.",
+    links: [{ label: "SchemeSathi on GitHub", url: "https://github.com/Pavan-Jadhav261/SchemeSathi" }]
+  },
+  {
+    keywords: ['text-to-3d', 'text to 3d', '3d', 'blender', 'generative 3d', 'mesh'],
+    response: "**Text-to-3D** is a Blender-based Generative AI system that converts natural language descriptions into 3D shapes, procedural geometries, and render-ready scenes.",
+    links: [{ label: "Text-to-3D on GitHub", url: "https://github.com/Pavan-Jadhav261/text-to-3d" }]
   },
   {
     keywords: ['mentora', 'tutor', 'learning', 'education'],
     response: "**Mentora AI** is an intelligent learning companion designed to teach students *how to think* rather than giving direct answers. It uses local LLMs (Gemma), RAG over coursework, AST code visualization, and Socratic prompting.",
     links: [{ label: "Mentora AI on GitHub", url: "https://github.com/Pavan-Jadhav261/mentoraAi" }]
-  },
-  {
-    keywords: ['schemesathi', 'scheme', 'government', 'civic'],
-    response: "**SchemeSathi** simplifies discovering public welfare schemes based on personalized eligibility criteria (income, student status, state). Includes an automated browser extension for instant application guidance.",
-    links: [{ label: "SchemeSathi on GitHub", url: "https://github.com/Pavan-Jadhav261/SchemeSathi" }]
   },
   {
     keywords: ['abha', 'health', 'hospital', 'medical'],
@@ -45,11 +50,27 @@ const KNOWLEDGE_BASE = [
     links: [{ label: "Browse GitHub Repos", url: "https://github.com/Pavan-Jadhav261" }]
   },
   {
-    keywords: ['contact', 'email', 'hire', 'reach', 'message', 'touch', 'talk', 'linkedin'],
-    response: "You can reach me directly anytime! I'm always open to discussing AI engineering roles, ambitious hackathons, and high-impact projects.\n\n• **Email**: pavanjadhav5331@gmail.com\n• **LinkedIn**: linkedin.com/in/pavan-jadhav261\n• **GitHub**: github.com/Pavan-Jadhav261",
+    keywords: ['linkedin'],
+    response: "Here's Pavan's LinkedIn: https://www.linkedin.com/in/pavan-jadhav261/",
+    links: [{ label: "LinkedIn Profile", url: "https://www.linkedin.com/in/pavan-jadhav261/" }]
+  },
+  {
+    keywords: ['email', 'mail'],
+    response: "You can email Pavan directly at pavanjadhav5331@gmail.com.",
+    links: [{ label: "Send Email", url: "mailto:pavanjadhav5331@gmail.com" }]
+  },
+  {
+    keywords: ['github', 'git', 'repo', 'repositories', 'code'],
+    response: "You can explore all of Pavan's code and 20+ open-source repositories directly on his GitHub: https://github.com/Pavan-Jadhav261",
+    links: [{ label: "GitHub Profile", url: "https://github.com/Pavan-Jadhav261" }]
+  },
+  {
+    keywords: ['contact', 'hire', 'reach', 'message', 'touch', 'talk'],
+    response: "You can reach Pavan directly anytime! He's always open to discussing AI engineering roles, ambitious hackathons, and high-impact projects.\n\n• **Email**: pavanjadhav5331@gmail.com\n• **LinkedIn**: linkedin.com/in/pavan-jadhav261\n• **GitHub**: github.com/Pavan-Jadhav261",
     links: [
       { label: "Send Email", url: "mailto:pavanjadhav5331@gmail.com" },
-      { label: "LinkedIn Profile", url: "https://www.linkedin.com/in/pavan-jadhav261/" }
+      { label: "LinkedIn Profile", url: "https://www.linkedin.com/in/pavan-jadhav261/" },
+      { label: "GitHub Profile", url: "https://github.com/Pavan-Jadhav261" }
     ]
   },
   {
@@ -58,11 +79,122 @@ const KNOWLEDGE_BASE = [
     links: [{ label: "View Experience", url: "#overview" }]
   },
   {
+    keywords: ['participate', 'notify him', 'team up', 'join hackathon'],
+    response: "I can't notify Pavan directly. Reach him at pavanjadhav5331@gmail.com or on LinkedIn (https://www.linkedin.com/in/pavan-jadhav261/) and share the hackathon details!",
+    links: [
+      { label: "LinkedIn Profile", url: "https://www.linkedin.com/in/pavan-jadhav261/" },
+      { label: "Send Email", url: "mailto:pavanjadhav5331@gmail.com" }
+    ]
+  },
+  {
+    keywords: ['instagram', 'insta', 'snapchat', 'snap', 'facebook', 'whatsapp', 'phone'],
+    response: "I can't provide personal socials like Instagram or Snapchat. You can reach Pavan directly on LinkedIn or via Email.",
+    links: [
+      { label: "LinkedIn Profile", url: "https://www.linkedin.com/in/pavan-jadhav261/" },
+      { label: "Send Email", url: "mailto:pavanjadhav5331@gmail.com" }
+    ]
+  },
+  {
     keywords: ['who', 'about', 'pavan', 'yourself', 'background'],
     response: "I'm Pavan Jadhav — an AI & Full-Stack developer passionate about building high-performance systems. From fine-tuning local LLMs and agentic workflows to real-time computer vision and 3D generative pipelines, I love shipping tools that solve real problems.",
     links: [{ label: "GitHub Profile", url: "https://github.com/Pavan-Jadhav261" }]
   }
 ];
+
+// Context-aware link resolver: strictly matches user intent and actual reply content
+function resolveContextLinks(query: string, replyText?: string): { label: string; url: string }[] | undefined {
+  const q = query.toLowerCase();
+  const r = (replyText || "").toLowerCase();
+
+  // 1. Personal socials (Snapchat, Instagram, etc.) -> Strictly LinkedIn + Email!
+  if (
+    q.includes('instagram') || q.includes('insta') ||
+    q.includes('snapchat') || q.includes('snap') ||
+    q.includes('facebook') || q.includes('phone') || q.includes('whatsapp') ||
+    r.includes('instagram') || r.includes('snapchat')
+  ) {
+    return [
+      { label: "LinkedIn Profile", url: "https://www.linkedin.com/in/pavan-jadhav261/" },
+      { label: "Send Email", url: "mailto:pavanjadhav5331@gmail.com" }
+    ];
+  }
+
+  // 2. Hackathon teaming / participating / notifying Pavan -> Strictly LinkedIn and/or Email! (NO GitHub)
+  if (
+    (q.includes('hackathon') && (q.includes('participate') || q.includes('notify') || q.includes('team') || q.includes('join') || q.includes('with') || q.includes('collaborate'))) ||
+    q.includes('notify him') || q.includes('tell him') || q.includes('reach out to him')
+  ) {
+    return [
+      { label: "LinkedIn Profile", url: "https://www.linkedin.com/in/pavan-jadhav261/" },
+      { label: "Send Email", url: "mailto:pavanjadhav5331@gmail.com" }
+    ];
+  }
+
+  // 3. Inspect links explicitly mentioned in the AI reply
+  const replyMentionsLinkedIn = r.includes('linkedin.com') || r.includes('linkedin');
+  const replyMentionsEmail = r.includes('@gmail.com') || r.includes('mailto:') || r.includes('email');
+  const replyMentionsGitHub = r.includes('github.com');
+
+  // If the reply explicitly gave LinkedIn and/or Email, and did NOT give GitHub:
+  if ((replyMentionsLinkedIn || replyMentionsEmail) && !replyMentionsGitHub && !q.includes('github') && !q.includes('repo')) {
+    const links: { label: string; url: string }[] = [];
+    if (replyMentionsLinkedIn) links.push({ label: "LinkedIn Profile", url: "https://www.linkedin.com/in/pavan-jadhav261/" });
+    if (replyMentionsEmail) links.push({ label: "Send Email", url: "mailto:pavanjadhav5331@gmail.com" });
+    return links;
+  }
+
+  // If the reply explicitly gave GitHub, and did not give LinkedIn or Email:
+  if (replyMentionsGitHub && !replyMentionsLinkedIn && !replyMentionsEmail && !q.includes('linkedin') && !q.includes('email')) {
+    return [{ label: "GitHub Profile", url: "https://github.com/Pavan-Jadhav261" }];
+  }
+
+  // 4. Specific single profile inquiries from user query
+  const queryIsLinkedIn = q.includes('linkedin');
+  const queryIsGitHub = q.includes('github') || q.includes('repo') || q.includes('repositories') || q.includes('code');
+  const queryIsEmail = q.includes('email') || q.includes('mail');
+
+  if (queryIsLinkedIn && !queryIsGitHub && !queryIsEmail) {
+    return [{ label: "LinkedIn Profile", url: "https://www.linkedin.com/in/pavan-jadhav261/" }];
+  }
+
+  if (queryIsGitHub && !queryIsLinkedIn && !queryIsEmail) {
+    return [{ label: "GitHub Profile", url: "https://github.com/Pavan-Jadhav261" }];
+  }
+
+  if (queryIsEmail && !queryIsLinkedIn && !queryIsGitHub) {
+    return [{ label: "Send Email", url: "mailto:pavanjadhav5331@gmail.com" }];
+  }
+
+  // 5. Specific projects
+  if (q.includes('schemesathi') || q.includes('schemesatchi') || q.includes('scheme') || r.includes('schemesathi')) {
+    return [{ label: "View SchemeSathi", url: "https://github.com/Pavan-Jadhav261/SchemeSathi" }];
+  }
+  if (q.includes('text to 3d') || q.includes('text-to-3d') || q.includes('blender') || r.includes('text-to-3d')) {
+    return [{ label: "Text-to-3D on GitHub", url: "https://github.com/Pavan-Jadhav261/text-to-3d" }];
+  }
+  if (q.includes('mentora') || r.includes('mentora')) {
+    return [{ label: "View Mentora AI", url: "https://github.com/Pavan-Jadhav261/mentoraAi" }];
+  }
+  if (q.includes('flower') || q.includes('yolo') || r.includes('flower-detector')) {
+    return [{ label: "Flower Detector Repo", url: "https://github.com/Pavan-Jadhav261/flower-detector-yolo" }];
+  }
+
+  // 6. General contact inquiries (asking for all links or general reach out)
+  if (q.includes('contact') || q.includes('hire') || q.includes('reach') || q.includes('message') || q.includes('touch') || q.includes('talk')) {
+    return [
+      { label: "Send Email", url: "mailto:pavanjadhav5331@gmail.com" },
+      { label: "LinkedIn Profile", url: "https://www.linkedin.com/in/pavan-jadhav261/" },
+      { label: "GitHub Profile", url: "https://github.com/Pavan-Jadhav261" }
+    ];
+  }
+
+  // 7. General achievements without teaming intent (e.g. "which hackathons did you win?")
+  if (q.includes('hackathon') || q.includes('award') || q.includes('podium') || q.includes('win')) {
+    return [{ label: "View Experience", url: "#overview" }];
+  }
+
+  return getBotResponse(query).links;
+}
 
 function getBotResponse(input: string): { text: string; links?: { label: string; url: string }[] } {
   const query = input.toLowerCase().trim();
@@ -74,9 +206,10 @@ function getBotResponse(input: string): { text: string; links?: { label: string;
   }
 
   return {
-    text: "Thanks for asking! I'm Pavan's AI digital assistant. I can tell you all about his projects (Mentora AI, SchemeSathi, YOLO models), his tech stack (TypeScript, Python, Local LLMs, CV), or connect you directly with him at pavanjadhav5331@gmail.com.",
+    text: "Thanks for asking! I'm Pavan's AI digital assistant. I can tell you all about his top projects (SchemeSathi, Text-to-3D, Mentora AI), his tech stack (TypeScript, Python, Local LLMs, CV), or share his links (GitHub, LinkedIn, Email).",
     links: [
-      { label: "Send Pavan an Email", url: "mailto:pavanjadhav5331@gmail.com" },
+      { label: "GitHub Profile", url: "https://github.com/Pavan-Jadhav261" },
+      { label: "Send Email", url: "mailto:pavanjadhav5331@gmail.com" },
       { label: "LinkedIn", url: "https://www.linkedin.com/in/pavan-jadhav261/" }
     ]
   };
@@ -84,8 +217,8 @@ function getBotResponse(input: string): { text: string; links?: { label: string;
 
 const QUICK_PROMPTS = [
   "What are your top projects?",
-  "What is your tech stack?",
-  "Tell me about Mentora AI",
+  "Tell me about SchemeSathi",
+  "Tell me about Text-to-3D",
   "How can I contact you?"
 ];
 
@@ -160,13 +293,14 @@ export default function AIAssistant() {
       }
 
       if (res.ok && data?.reply) {
-        const matchedKnowledge = getBotResponse(textToSend);
+        const contextualLinks = resolveContextLinks(textToSend, data.reply);
+
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
           sender: 'ai',
           text: data.reply,
           timestamp: 'Just now',
-          links: matchedKnowledge.links,
+          links: contextualLinks,
         };
         setMessages(prev => [...prev, botMessage]);
         setIsTyping(false);
@@ -179,12 +313,13 @@ export default function AIAssistant() {
     // Fallback to local knowledge base if API is unreachable
     setTimeout(() => {
       const response = getBotResponse(textToSend);
+      const contextualLinks = resolveContextLinks(textToSend, response.text);
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
         text: response.text,
         timestamp: 'Just now',
-        links: response.links
+        links: contextualLinks || response.links
       };
       setMessages(prev => [...prev, botMessage]);
       setIsTyping(false);

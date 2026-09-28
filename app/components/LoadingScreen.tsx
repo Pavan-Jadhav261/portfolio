@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 
 interface LoadingScreenProps {
   isReady: boolean;
+  onFadeStart?: () => void;
   onLoaded?: () => void;
 }
 
-export default function LoadingScreen({ isReady, onLoaded }: LoadingScreenProps) {
+export default function LoadingScreen({ isReady, onFadeStart, onLoaded }: LoadingScreenProps) {
   const [progress, setProgress] = useState(12);
   const [statusText, setStatusText] = useState('Downloading assets...');
   const [shouldRender, setShouldRender] = useState(true);
@@ -37,12 +38,14 @@ export default function LoadingScreen({ isReady, onLoaded }: LoadingScreenProps)
   }, [isReady]);
 
   useEffect(() => {
-    if (progress < 40) {
-      setStatusText('Downloading background assets...');
-    } else if (progress < 80) {
+    if (progress < 30) {
+      setStatusText('Downloading visual assets...');
+    } else if (progress < 65) {
+      setStatusText('Buffering soundtrack & textures...');
+    } else if (progress < 85) {
       setStatusText('Initializing WebGL shaders...');
     } else if (progress < 99) {
-      setStatusText('Finalizing textures...');
+      setStatusText('Finalizing environment...');
     } else {
       setStatusText('Ready');
     }
@@ -53,23 +56,24 @@ export default function LoadingScreen({ isReady, onLoaded }: LoadingScreenProps)
       setProgress(100);
       const timer = setTimeout(() => {
         setIsFadingOut(true);
+        onFadeStart?.();
         const unmountTimer = setTimeout(() => {
           setShouldRender(false);
           onLoaded?.();
-        }, 650);
+        }, 1400);
         return () => clearTimeout(unmountTimer);
-      }, 350);
+      }, 400);
 
       return () => clearTimeout(timer);
     }
-  }, [isReady, onLoaded]);
+  }, [isReady, onFadeStart, onLoaded]);
 
   if (!shouldRender) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-[100] bg-[#050508] flex flex-col justify-between p-8 sm:p-12 select-none transition-all duration-700 ease-out ${
-        isFadingOut ? 'opacity-0 scale-[1.02] pointer-events-none' : 'opacity-100 scale-100'
+      className={`fixed inset-0 z-[100] bg-[#050508] flex flex-col justify-between p-8 sm:p-12 select-none transition-all duration-[1400ms] ease-in-out ${
+        isFadingOut ? 'opacity-0 scale-[1.03] pointer-events-none' : 'opacity-100 scale-100'
       }`}
     >
       {/* Top Branding */}
