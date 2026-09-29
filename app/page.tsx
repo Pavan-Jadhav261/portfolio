@@ -145,7 +145,11 @@ export default function Home() {
         {/* ─────────────────────────────────────────────────────────────
             SECTION 1: HERO LANDING (FULL VISIBLE HEIGHT WITH WEBGL BACKGROUND)
            ───────────────────────────────────────────────────────────── */}
-        <section className="relative w-full h-[100svh] min-h-[100svh] sm:h-screen sm:min-h-screen overflow-hidden bg-black flex flex-col justify-between">
+        <section
+          id="hero"
+          aria-label="Hero and Introduction"
+          className="relative w-full h-[100svh] min-h-[100svh] sm:h-screen sm:min-h-screen overflow-hidden bg-black flex flex-col justify-between"
+        >
           {/* Background Interactive Ripple Distortion Effect - perfectly framed on mobile & desktop */}
           <div className="absolute top-0 left-0 w-full h-[65vh] sm:h-full z-0 overflow-hidden">
             <RippleDistortion
@@ -224,6 +228,9 @@ export default function Home() {
                 possibility.
               </span>
             </h1>
+            <p className="sr-only">
+              Pavan Jadhav is an AI Engineer and Full-Stack Developer specializing in Autonomous AI Agents, Large Language Model (LLM) Fine-Tuning, Computer Vision, and High-Performance Intelligent Systems.
+            </p>
 
             {/* CTA Buttons */}
             <div className="flex items-center gap-3 pt-4 sm:pt-6 pointer-events-auto">
@@ -286,6 +293,7 @@ export default function Home() {
            ───────────────────────────────────────────────────────────── */}
         <section
           id="about"
+          aria-label="About Pavan Jadhav and AI Research Focus"
           className="relative w-full min-h-screen bg-gradient-to-b from-[#050507] via-[#09090d] to-[#040406] border-t border-white/[0.08] py-20 sm:py-28 md:py-32 px-5 sm:px-12 md:px-16 lg:px-24 overflow-hidden scroll-mt-6"
         >
           <span id="overview" className="sr-only" />

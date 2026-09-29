@@ -85,7 +85,11 @@ export default function WorkSection() {
   const activeProject = projects[activeProjectIndex];
 
   return (
-    <section id="work" className="relative w-full bg-black text-white py-24 sm:py-32 px-5 sm:px-12 md:px-16 lg:px-24 overflow-hidden border-t border-white/[0.08]">
+    <section
+      id="work"
+      aria-label="Selected Builds and Engineering Portfolio"
+      className="relative w-full bg-black text-white py-24 sm:py-32 px-5 sm:px-12 md:px-16 lg:px-24 overflow-hidden border-t border-white/[0.08]"
+    >
       {/* Background Ambient Glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] max-w-full h-[500px] bg-[#ff2a5f]/[0.025] blur-[180px] pointer-events-none rounded-full" />
 
