@@ -11,6 +11,7 @@ import FlipCard from "./components/FlipCard";
 import WorkSection from "./components/WorkSection";
 import AIAssistant from "./components/AIAssistant";
 import AudioPlayer from "./components/AudioPlayer";
+import WaterBalloon from "./components/WaterBalloon";
 import { audioManager } from "./lib/audioManager";
 
 export default function Home() {
@@ -577,6 +578,9 @@ export default function Home() {
 
         {/* Floating AI Assistant in bottom-right corner */}
         <AIAssistant />
+
+        {/* Music-responsive Red Water Balloon that follows cursor across the entire website */}
+        <WaterBalloon />
       </main>
     </ClickSpark>
   );

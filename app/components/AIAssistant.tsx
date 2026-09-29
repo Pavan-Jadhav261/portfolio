@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { audioManager } from '../lib/audioManager';
 
 interface Message {
   id: string;
@@ -222,6 +223,47 @@ const QUICK_PROMPTS = [
   "How can I contact you?"
 ];
 
+// ─────────────────────────────────────────────────────────────
+// SOFT-BODY WATER BALLOON PHYSICS FOR AI BUTTON
+// ─────────────────────────────────────────────────────────────
+const NUM_NODES = 12;
+const CX = 44;
+const CY = 44;
+const R0 = 27;
+
+interface SoftBodyNode {
+  angle: number;
+  r: number;
+  v: number;
+}
+
+const ptsBuffer: { x: number; y: number }[] = Array.from({ length: NUM_NODES }, () => ({ x: 0, y: 0 }));
+
+function generateLiquidSvgPath(nodes: { angle: number; r: number }[]): string {
+  for (let i = 0; i < NUM_NODES; i++) {
+    ptsBuffer[i].x = CX + nodes[i].r * Math.cos(nodes[i].angle);
+    ptsBuffer[i].y = CY + nodes[i].r * Math.sin(nodes[i].angle);
+  }
+  const mid0x = (ptsBuffer[NUM_NODES - 1].x + ptsBuffer[0].x) * 0.5;
+  const mid0y = (ptsBuffer[NUM_NODES - 1].y + ptsBuffer[0].y) * 0.5;
+
+  let d = `M ${mid0x.toFixed(1)} ${mid0y.toFixed(1)}`;
+  for (let i = 0; i < NUM_NODES; i++) {
+    const next = ptsBuffer[(i + 1) % NUM_NODES];
+    const mx = (ptsBuffer[i].x + next.x) * 0.5;
+    const my = (ptsBuffer[i].y + next.y) * 0.5;
+    d += ` Q ${ptsBuffer[i].x.toFixed(1)} ${ptsBuffer[i].y.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)}`;
+  }
+  return d + ' Z';
+}
+
+const DEFAULT_CIRCLE_PATH = generateLiquidSvgPath(
+  Array.from({ length: NUM_NODES }, (_, i) => ({
+    angle: (i / NUM_NODES) * Math.PI * 2,
+    r: R0,
+  }))
+);
+
 export default function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnread, setHasUnread] = useState(true);
@@ -237,6 +279,201 @@ export default function AIAssistant() {
   const [isTyping, setIsTyping] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const dotRef = useRef<HTMLSpanElement | null>(null);
+  const liquidPathRef = useRef<SVGPathElement | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile =
+        typeof window !== 'undefined' &&
+        (window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches);
+      setIsMobile(mobile);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Music beat physical response for mobile view (Desktop orb handles PC view)
+  useEffect(() => {
+    if (!isMobile || isOpen) {
+      if (buttonRef.current) buttonRef.current.style.transform = '';
+      if (dotRef.current) dotRef.current.style.transform = '';
+      if (liquidPathRef.current) liquidPathRef.current.setAttribute('d', DEFAULT_CIRCLE_PATH);
+      return;
+    }
+
+    const nodes: SoftBodyNode[] = Array.from({ length: NUM_NODES }, (_, i) => ({
+      angle: (i / NUM_NODES) * Math.PI * 2,
+      r: R0,
+      v: 0,
+    }));
+
+    let jump = 0;
+    let jumpVel = 0;
+    let squash = 0;
+    let squashVel = 0;
+    let wobble = 0;
+    let wobbleVel = 0;
+    let wobbleDir = 1;
+
+    let bassBaseline = 0;
+    let lastKickTime = 0;
+    let lastTime = performance.now();
+    let rafId: number;
+
+    const loop = (currentTime: number) => {
+      rafId = requestAnimationFrame(loop);
+
+      const dt = Math.min(0.033, Math.max(0.001, (currentTime - lastTime) / 1000));
+      lastTime = currentTime;
+
+      const { beat, bass, treble, isPlaying } = audioManager.getBeatData();
+
+      // Filtered kick transient detection: requires strong transient spike above running baseline
+      const bassDelta = Math.max(0, bass - bassBaseline * 1.10);
+      bassBaseline += (bass - bassBaseline) * 0.08;
+
+      const timeSinceKick = (currentTime - lastKickTime) / 1000;
+      const isKickHit = isPlaying && bassDelta > 0.048 && beat > 0.36 && timeSinceKick > 0.16;
+
+      if (isKickHit) {
+        lastKickTime = currentTime;
+        // Soft, controlled physical impulse (~50% of previous intensity)
+        const impulse = Math.min(0.75, Math.max(0.2, (bassDelta - 0.02) * 2.8 + (beat - 0.25) * 0.45));
+
+        // 1. Gentle upward hop (soft speaker vibration)
+        jumpVel -= impulse * 75;
+
+        // 2. Subtle elastic squash
+        squashVel += impulse * 10;
+
+        // 3. Gentle lateral liquid sway
+        wobbleDir = -wobbleDir;
+        wobbleVel += wobbleDir * impulse * 35;
+
+        // 4. Soft-body nodal impulses (subtle perimeter breathing)
+        for (let i = 0; i < NUM_NODES; i++) {
+          const node = nodes[i];
+          const sinA = Math.sin(node.angle); // +1 bottom, -1 top
+          const cosA = Math.cos(node.angle);
+
+          if (sinA > 0.2) {
+            node.v -= impulse * 35 * sinA;
+          } else if (sinA < -0.2) {
+            node.v += impulse * 24 * Math.abs(sinA);
+          } else {
+            node.v += impulse * 14 * Math.abs(cosA);
+          }
+        }
+      }
+
+      // Filtered deep bass breathing (ignores quiet noise, only slightly stirs on heavy 808 bass)
+      const continuousBass = isPlaying && bass > 0.38 ? Math.pow((bass - 0.38) * 1.5, 1.5) * 0.35 : 0;
+
+      // ─────────────────────────────────────────────────────────────
+      // PHYSICS INTEGRATION (High fluid damping for smooth, quick settling)
+      // ─────────────────────────────────────────────────────────────
+
+      // 1. Vertical Hop Spring
+      const kJump = 175;
+      const dJump = 14.5;
+      const jumpAcc = -jump * kJump - jumpVel * dJump;
+      jumpVel += jumpAcc * dt;
+      jump += jumpVel * dt;
+
+      // 2. Squash & Stretch Spring
+      const kSquash = 150;
+      const dSquash = 12.0;
+      let squashAcc = -squash * kSquash - squashVel * dSquash;
+      if (jump > 0) {
+        squashAcc += jump * 6; // gentle landing compression
+      }
+      squashVel += squashAcc * dt;
+      squash += squashVel * dt;
+
+      // 3. Side-to-side liquid wobble Spring
+      const kWobble = 110;
+      const dWobble = 10.0;
+      const wobbleAcc = -wobble * kWobble - wobbleVel * dWobble;
+      wobbleVel += wobbleAcc * dt;
+      wobble += wobbleVel * dt;
+
+      // 4. Soft-body 12-Node Membrane Spring Mesh
+      const kRadial = 160;
+      const dRadial = 12.5;
+      const kMembrane = 48;
+
+      let totalDisp = 0;
+      for (let i = 0; i < NUM_NODES; i++) totalDisp += nodes[i].r - R0;
+      const avgDisp = totalDisp / NUM_NODES;
+
+      for (let i = 0; i < NUM_NODES; i++) {
+        const node = nodes[i];
+        const prev = nodes[(i - 1 + NUM_NODES) % NUM_NODES];
+        const next = nodes[(i + 1) % NUM_NODES];
+
+        // Elastic radial spring
+        let force = -kRadial * (node.r - R0) - dRadial * node.v;
+
+        // Surface membrane tension coupling
+        force += kMembrane * (prev.r - node.r + (next.r - node.r));
+
+        // Volume preservation resistance
+        force -= 18 * avgDisp;
+
+        // Gentle bass vibration
+        if (continuousBass > 0.02) {
+          const sinA = Math.sin(node.angle);
+          if (sinA > 0.2) force -= continuousBass * 10 * sinA;
+          else force += continuousBass * 5;
+        }
+
+        // Treble micro-flutter (only on audible highs)
+        if (isPlaying && treble > 0.2) {
+          force += Math.sin(node.angle * 3 + currentTime * 0.02) * (treble - 0.2) * 6;
+        }
+
+        node.v += force * dt;
+        node.r += node.v * dt;
+        // Controlled elastic bounds (~15-18% maximum radius shift)
+        node.r = Math.max(R0 * 0.85, Math.min(R0 * 1.18, node.r));
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // APPLY VISUAL TRANSFORMS & SVG PATH (Controlled, subtle limits)
+      // ─────────────────────────────────────────────────────────────
+      const clampedSquash = Math.max(-0.08, Math.min(0.12, squash));
+      const scaleX = 1 + clampedSquash;
+      const scaleY = 1 - clampedSquash * 0.72;
+      const clampedJump = Math.max(-5, Math.min(2.5, jump));
+      const clampedWobble = Math.max(-4.5, Math.min(4.5, wobble));
+
+      if (buttonRef.current) {
+        buttonRef.current.style.transform = `translate3d(0, ${clampedJump.toFixed(2)}px, 0) scale3d(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)}, 1) rotate(${clampedWobble.toFixed(2)}deg)`;
+      }
+
+      if (liquidPathRef.current) {
+        liquidPathRef.current.setAttribute('d', generateLiquidSvgPath(nodes));
+      }
+
+      if (dotRef.current) {
+        const dotScale = 1 + Math.abs(clampedSquash) * 0.2 + (isPlaying && beat > 0.35 ? (beat - 0.35) * 0.2 : 0);
+        dotRef.current.style.transform = `scale3d(${dotScale.toFixed(2)}, ${dotScale.toFixed(2)}, 1)`;
+      }
+    };
+
+    rafId = requestAnimationFrame(loop);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (buttonRef.current) buttonRef.current.style.transform = '';
+      if (dotRef.current) dotRef.current.style.transform = '';
+      if (liquidPathRef.current) liquidPathRef.current.setAttribute('d', DEFAULT_CIRCLE_PATH);
+    };
+  }, [isMobile, isOpen]);
 
   // Rate-limit countdown timer
   useEffect(() => {
@@ -341,22 +578,54 @@ export default function AIAssistant() {
         )}
 
         <button
+          ref={buttonRef}
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle AI Assistant"
-          className="relative group w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#0d0d12] border border-white/15 hover:border-[#ff2a5f] p-0 flex items-center justify-center text-white shadow-[0_8px_30px_rgba(0,0,0,0.6)] hover:shadow-[0_0_25px_rgba(255,42,95,0.35)] transition-all duration-300"
+          className="relative group w-14 h-14 p-0 flex items-center justify-center text-white outline-none focus:outline-none will-change-transform select-none cursor-pointer"
         >
+          {/* Soft-body liquid SVG background & border */}
+          <svg
+            className="absolute -inset-4 w-[88px] h-[88px] pointer-events-none overflow-visible"
+            viewBox="0 0 88 88"
+            fill="none"
+          >
+            <defs>
+              <radialGradient id="ai-liquid-grad" cx="42%" cy="32%" r="68%">
+                <stop offset="0%" stopColor="#1a1a26" />
+                <stop offset="60%" stopColor="#0f0f16" />
+                <stop offset="100%" stopColor="#08080c" />
+              </radialGradient>
+              <filter id="ai-liquid-shadow" x="-40%" y="-40%" width="180%" height="180%">
+                <feDropShadow dx="0" dy="8" stdDeviation="10" floodColor="#000000" floodOpacity="0.75" />
+                <feDropShadow dx="0" dy="0" stdDeviation="10" floodColor="#ff2a5f" floodOpacity="0.25" />
+              </filter>
+            </defs>
+            <path
+              ref={liquidPathRef}
+              d={DEFAULT_CIRCLE_PATH}
+              fill="url(#ai-liquid-grad)"
+              stroke="rgba(255, 255, 255, 0.18)"
+              strokeWidth="1.6"
+              filter="url(#ai-liquid-shadow)"
+              className="group-hover:stroke-[#ff2a5f] transition-[stroke] duration-300"
+            />
+          </svg>
+
           {/* Active online pulse dot */}
-          <span className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-[#ff2a5f] border-2 border-black flex items-center justify-center">
+          <span
+            ref={dotRef}
+            className="absolute top-0.5 right-0.5 z-20 w-3.5 h-3.5 rounded-full bg-[#ff2a5f] border-2 border-black flex items-center justify-center will-change-transform shadow-[0_0_10px_rgba(255,42,95,0.8)]"
+          >
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping opacity-75" />
           </span>
 
           {isOpen ? (
-            <svg className="w-5 h-5 transition-transform group-hover:rotate-90 duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 relative z-10 transition-transform group-hover:rotate-90 duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           ) : (
-            <div className="flex flex-col items-center justify-center">
-              <svg className="w-6 h-6 text-[#ff2a5f] group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="relative z-10 flex flex-col items-center justify-center">
+              <svg className="w-6 h-6 text-[#ff2a5f] group-hover:scale-110 transition-transform drop-shadow-[0_0_8px_rgba(255,42,95,0.4)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
