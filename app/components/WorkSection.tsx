@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import LiquidTarget from './LiquidTarget';
 
 interface Project {
   id: string;
@@ -76,6 +77,9 @@ const steps = [
   { label: "SHIP", sub: "Deploy production-grade system" },
 ];
 
+const projectLiquidColors = ['cyan', 'violet', 'emerald', 'amber', 'rose'] as const;
+const stepLiquidColors = ['blue', 'indigo', 'amber', 'teal', 'ruby'] as const;
+
 export default function WorkSection() {
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const activeProject = projects[activeProjectIndex];
@@ -104,45 +108,58 @@ export default function WorkSection() {
             {projects.map((p, idx) => {
               const isActive = activeProjectIndex === idx;
               return (
-                <button
+                <LiquidTarget
                   key={p.id}
+                  id={`project-${p.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  color={projectLiquidColors[idx % projectLiquidColors.length]}
+                  as="button"
                   onClick={() => setActiveProjectIndex(idx)}
-                  className={`w-full text-left group transition-all duration-300 py-3.5 sm:py-4 px-2 sm:px-4 rounded-xl ${
+                  className={`w-full text-left group py-3.5 sm:py-4 px-2 sm:px-4 rounded-xl border transition-colors ${
                     isActive
                       ? "bg-white/[0.05] border-white/20"
-                      : "hover:bg-white/[0.02] border-transparent"
+                      : "border-transparent"
                   }`}
                 >
-                  <div className="flex items-center justify-between text-xs sm:text-sm font-mono tracking-wider mb-2.5">
-                    <div className="flex items-center gap-4 sm:gap-8">
-                      <span className={`${isActive ? "text-[#ff2a5f]" : "text-zinc-500 group-hover:text-zinc-300"} transition-colors font-bold`}>
-                        {p.id}
-                      </span>
-                      <span className={`text-sm sm:text-base font-gilroy font-bold uppercase tracking-tight ${
-                        isActive ? "text-white" : "text-zinc-400 group-hover:text-white"
-                      } transition-colors`}>
-                        {p.name}
-                      </span>
-                    </div>
-                    <span className="text-[11px] sm:text-xs text-zinc-500 group-hover:text-zinc-400 transition-colors uppercase">
-                      {p.category}
-                    </span>
-                  </div>
+                  {({ isMerged }) => (
+                    <>
+                      <div className="flex items-center justify-between text-xs sm:text-sm font-mono tracking-wider mb-2.5">
+                        <div className="flex items-center gap-4 sm:gap-8">
+                          <span className={`font-mono text-xs sm:text-sm font-bold tracking-wider transition-colors ${
+                            isMerged ? "text-white" : isActive ? "text-[#ff2a5f]" : "text-zinc-500 group-hover:text-zinc-300"
+                          }`}>
+                            {p.id}
+                          </span>
+                          <span className={`text-sm sm:text-base font-gilroy font-bold uppercase tracking-tight transition-colors ${
+                            isMerged ? "text-white" : isActive ? "text-white" : "text-zinc-400 group-hover:text-white"
+                          }`}>
+                            {p.name}
+                          </span>
+                        </div>
+                        <span className={`text-[11px] sm:text-xs uppercase transition-colors ${
+                          isMerged ? "text-white/90 font-medium" : "text-zinc-500 group-hover:text-zinc-400"
+                        }`}>
+                          {p.category}
+                        </span>
+                      </div>
 
-                  {/* Horizontal line ending with arrow */}
-                  <div className="relative w-full flex items-center">
-                    <div className={`h-[1px] w-full transition-all duration-300 ${
-                      isActive ? "bg-white/40" : "bg-white/10 group-hover:bg-white/25"
-                    }`} />
-                    <span className={`pl-2 font-mono text-sm transition-all duration-300 ${
-                      isActive
-                        ? "text-[#ff2a5f] translate-x-1"
-                        : "text-zinc-600 group-hover:text-white group-hover:translate-x-1"
-                    }`}>
-                      &rarr;
-                    </span>
-                  </div>
-                </button>
+                      {/* Horizontal line ending with arrow */}
+                      <div className="relative w-full flex items-center">
+                        <div className={`h-[1px] w-full transition-all duration-300 ${
+                          isMerged ? "bg-white/60" : isActive ? "bg-white/40" : "bg-white/10 group-hover:bg-white/25"
+                        }`} />
+                        <span className={`pl-2 font-mono text-sm transition-all duration-300 ${
+                          isMerged
+                            ? "text-white translate-x-1.5 font-bold"
+                            : isActive
+                            ? "text-[#ff2a5f] translate-x-1 font-bold"
+                            : "text-zinc-600 group-hover:text-white group-hover:translate-x-1"
+                        }`}>
+                          &rarr;
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </LiquidTarget>
               );
             })}
           </div>
@@ -324,11 +341,18 @@ export default function WorkSection() {
               <React.Fragment key={step.label}>
                 {/* Step Item */}
                 <div className="group flex flex-col items-center text-center">
-                  <div className="px-6 py-2.5 rounded-lg border border-white/10 bg-[#0d0d12] group-hover:border-[#ff2a5f]/40 group-hover:shadow-[0_0_20px_rgba(255,42,95,0.15)] transition-all">
-                    <span className="font-mono text-sm sm:text-base font-bold text-white tracking-[0.25em] uppercase">
-                      {step.label}
-                    </span>
-                  </div>
+                  <LiquidTarget
+                    id={`step-${step.label.toLowerCase()}`}
+                    color={stepLiquidColors[idx % stepLiquidColors.length]}
+                    as="div"
+                    className="px-6 py-2.5 rounded-lg border border-white/10 bg-[#0d0d12] transition-colors cursor-pointer"
+                  >
+                    {({ isMerged }) => (
+                      <span className="font-mono text-sm sm:text-base font-bold tracking-[0.25em] uppercase text-white transition-colors">
+                        {step.label}
+                      </span>
+                    )}
+                  </LiquidTarget>
                   <span className="text-[11px] font-mono text-zinc-500 mt-1 max-w-[220px]">
                     {step.sub}
                   </span>

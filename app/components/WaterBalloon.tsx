@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { audioManager } from '../lib/audioManager';
+import { liquidMergeManager } from '../lib/liquidMergeState';
 
 const NUM_NODES = 16;
 const BASE_RADIUS = 12.5; // ~25px base diameter - minimal, borderless, visible crimson liquid droplet
@@ -76,6 +77,14 @@ export default function WaterBalloon() {
     let bassBaseline = 0;
     let lastKickTime = 0;
 
+    // 4. Liquid merge & absorption state
+    let mergeAlpha = 0;
+    let wasInside = false;
+    let isCurrentlyInside = false;
+    let lastMergedTargetId: string | null = null;
+    let lastQueryTime = 0;
+    let cachedTargets: HTMLElement[] = [];
+
     const onPointerMove = (e: MouseEvent | PointerEvent) => {
       targetX = e.clientX;
       targetY = e.clientY;
@@ -94,12 +103,142 @@ export default function WaterBalloon() {
 
     const updatePhysics = (dt: number, time: number) => {
       // ─────────────────────────────────────────────────────────────
+      // INTERACTIVE TARGET PROXIMITY & MAGNETIC ATTRACTION
+      // ─────────────────────────────────────────────────────────────
+      if (time - lastQueryTime > 200) {
+        lastQueryTime = time;
+        cachedTargets = Array.from(document.querySelectorAll<HTMLElement>('[data-liquid-target]'));
+      }
+
+      let closestTarget: HTMLElement | null = null;
+      let closestId: string | null = null;
+      let closestDist = Infinity;
+      let closestClampX = targetX;
+      let closestClampY = targetY;
+      let closestRect: DOMRect | null = null;
+
+      // 1. Instantaneous hover detection via elementFromPoint
+      const hoveredEl = typeof document !== 'undefined'
+        ? (document.elementFromPoint(targetX, targetY)?.closest<HTMLElement>('[data-liquid-target]') || null)
+        : null;
+
+      if (hoveredEl) {
+        closestTarget = hoveredEl;
+        closestId = hoveredEl.getAttribute('data-liquid-target');
+        closestRect = hoveredEl.getBoundingClientRect();
+        closestDist = 0;
+        closestClampX = targetX;
+        closestClampY = targetY;
+      } else {
+        for (let i = 0; i < cachedTargets.length; i++) {
+          const el = cachedTargets[i];
+          const rect = el.getBoundingClientRect();
+          if (rect.bottom < -50 || rect.top > window.innerHeight + 50) continue;
+
+          const clampX = Math.max(rect.left, Math.min(rect.right, targetX));
+          const clampY = Math.max(rect.top, Math.min(rect.bottom, targetY));
+          const dx = targetX - clampX;
+          const dy = targetY - clampY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestTarget = el;
+            closestId = el.getAttribute('data-liquid-target');
+            closestClampX = clampX;
+            closestClampY = clampY;
+            closestRect = rect;
+          }
+        }
+      }
+
+      const isInside = hoveredEl !== null || (closestDist <= 0.5 && closestTarget !== null);
+      isCurrentlyInside = isInside;
+
+      // Magnetic Attraction & Teardrop Elongation when near (outside)
+      const MERGE_ATTRACT_DIST = 85;
+      let targetXAttracted = targetX;
+      let targetYAttracted = targetY;
+
+      if (!isInside && closestDist < MERGE_ATTRACT_DIST && closestTarget && closestRect) {
+        const proximity = 1 - closestDist / MERGE_ATTRACT_DIST;
+        const pull = Math.pow(proximity, 1.5) * 0.42;
+        targetXAttracted += (closestClampX - targetX) * pull;
+        targetYAttracted += (closestClampY - targetY) * pull;
+
+        // Elongate soft-body nodes facing the element
+        const angleToEl = Math.atan2(closestClampY - posY, closestClampX - posX);
+        const stretchAmount = proximity * 8.5;
+        for (let i = 0; i < NUM_NODES; i++) {
+          const diff = Math.cos(nodes[i].angle - angleToEl);
+          if (diff > 0.1) {
+            nodes[i].r += diff * stretchAmount * 0.35;
+          }
+        }
+      }
+
+      // Exit transition: when cursor leaves element back into open canvas
+      if (!isInside && wasInside) {
+        // Place orb directly at cursor exit point so it emerges seamlessly
+        posX = targetX;
+        posY = targetY;
+        velX = 0;
+        velY = 0;
+        // Elastic rebound "pop" as it emerges from the surface
+        squashVel += 0.15;
+        jumpVel -= 32;
+        for (let i = 0; i < NUM_NODES; i++) {
+          nodes[i].v += (Math.random() - 0.5) * 12;
+        }
+      }
+      wasInside = isInside;
+
+      // Keep orb coordinate in sync with cursor while inside
+      if (isInside) {
+        posX = targetX;
+        posY = targetY;
+        velX = 0;
+        velY = 0;
+      }
+
+      // Merge absorption interpolation
+      const targetMerge = isInside ? 1.0 : 0.0;
+      const mergeSpeed = isInside ? 0.38 : 0.22;
+      mergeAlpha += (targetMerge - mergeAlpha) * mergeSpeed;
+
+      // Broadcast merge progress to target element
+      const { beat, bass, treble, isPlaying } = audioManager.getBeatData();
+
+      if (closestId && closestRect && (isInside || mergeAlpha > 0.01)) {
+        const entryX = Math.max(0, Math.min(100, ((targetX - closestRect.left) / closestRect.width) * 100));
+        const entryY = Math.max(0, Math.min(100, ((targetY - closestRect.top) / closestRect.height) * 100));
+
+        liquidMergeManager.update({
+          targetId: closestId,
+          progress: isInside ? 1.0 : mergeAlpha,
+          entryX,
+          entryY,
+          beatEnergy: isPlaying ? beat : 0,
+        });
+        lastMergedTargetId = closestId;
+      } else if (lastMergedTargetId && mergeAlpha <= 0.01 && !isInside) {
+        liquidMergeManager.update({
+          targetId: null,
+          progress: 0,
+          entryX: 50,
+          entryY: 50,
+          beatEnergy: 0,
+        });
+        lastMergedTargetId = null;
+      }
+
+      // ─────────────────────────────────────────────────────────────
       // CURSOR PHYSICS: Spring-damper pull + inertia & sudden stop overshoot
       // ─────────────────────────────────────────────────────────────
       const kCursor = 135;
       const dCursor = 16.5;
-      const ax = (targetX - posX) * kCursor - velX * dCursor;
-      const ay = (targetY - posY) * kCursor - velY * dCursor;
+      const ax = (targetXAttracted - posX) * kCursor - velX * dCursor;
+      const ay = (targetYAttracted - posY) * kCursor - velY * dCursor;
 
       velX += ax * dt;
       velY += ay * dt;
@@ -109,7 +248,6 @@ export default function WaterBalloon() {
       // ─────────────────────────────────────────────────────────────
       // AUDIO $\rightarrow$ VIGOROUS SPEAKER IMPACT PHYSICS
       // ─────────────────────────────────────────────────────────────
-      const { beat, bass, treble, isPlaying } = audioManager.getBeatData();
 
       // Sharp transient kick detection
       const bassDelta = Math.max(0, bass - bassBaseline * 1.06);
@@ -226,19 +364,40 @@ export default function WaterBalloon() {
 
       updatePhysics(dt, time);
 
+      // If cursor is hovering inside target or orb has absorbed, hide completely
+      if (isCurrentlyInside || mergeAlpha >= 0.7) {
+        container.style.opacity = '0';
+        container.style.visibility = 'hidden';
+        ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+        return; // Orb is 100% invisible inside the button!
+      }
+
+      // Re-enable visibility when outside
+      container.style.visibility = 'visible';
+      container.style.opacity = '1';
+
       // Position the mini canvas using GPU translate3d
       container.style.transform = `translate3d(${posX - HALF_SIZE}px, ${posY - HALF_SIZE}px, 0)`;
 
       // Clear canvas
       ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
-      ctx.save();
+      // Dissolve and shrink orb as it physically merges into target element
+      const orbScale = Math.max(0, 1 - mergeAlpha * 1.35);
+      const orbOpacity = Math.max(0, 1 - mergeAlpha * 1.3);
 
-      // Softened vertical jump, wobble rotation, and squash/stretch
+      if (orbScale <= 0.02 || orbOpacity <= 0.02) {
+        return; // Orb completely merged and disappeared into the element!
+      }
+
+      ctx.save();
+      ctx.globalAlpha = orbOpacity;
+
+      // Softened vertical jump, wobble rotation, and squash/stretch scaled by merge factor
       const clampedJump = Math.max(-8, Math.min(4, jump));
       const clampedSquash = Math.max(-0.14, Math.min(0.18, squash));
-      const scaleX = 1 + clampedSquash;
-      const scaleY = 1 - clampedSquash * 0.75;
+      const scaleX = (1 + clampedSquash) * orbScale;
+      const scaleY = (1 - clampedSquash * 0.75) * orbScale;
       const clampedWobble = Math.max(-7, Math.min(7, wobble));
 
       ctx.translate(HALF_SIZE, HALF_SIZE + clampedJump);
@@ -291,6 +450,7 @@ export default function WaterBalloon() {
       cancelAnimationFrame(rafId);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('mousemove', onPointerMove);
+      liquidMergeManager.update({ targetId: null, progress: 0 });
     };
   }, [isDesktop]);
 
