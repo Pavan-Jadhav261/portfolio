@@ -231,10 +231,14 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
       window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    const dpr = typeof window !== 'undefined'
+      ? Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.5 : 2.0)
+      : 1;
+
     const renderer = new Renderer({
       alpha: false,
       antialias: true,
-      dpr: typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1,
+      dpr,
       powerPreference: 'high-performance'
     });
     const gl = renderer.gl;
@@ -243,6 +247,8 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
     canvas.style.width = '100%';
     canvas.style.height = '100%';
     canvas.style.display = 'block';
+    canvas.style.transform = 'translateZ(0)';
+    canvas.style.webkitTransform = 'translateZ(0)';
     mount.appendChild(canvas);
 
     // Safely check for anisotropic filtering on mobile GPUs
@@ -278,7 +284,12 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
       imageTexture.image = image;
       imageTexture.needsUpdate = true;
       compositeUniforms.uTextureSize.value = [image.naturalWidth || 1798, image.naturalHeight || 875];
+      renderer.render({ scene: compositeMesh });
       onLoad?.();
+      if (isVisible && !raf) {
+        previousTime = performance.now();
+        raf = requestAnimationFrame(loop);
+      }
     };
     image.onload = handleLoaded;
     image.src = src;
@@ -365,8 +376,17 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
     let height = 1;
 
     const resize = () => {
-      width = Math.max(1, mount.clientWidth);
-      height = Math.max(1, mount.clientHeight);
+      const newWidth = Math.max(1, mount.clientWidth);
+      const newHeight = Math.max(1, mount.clientHeight);
+
+      // On iOS Safari, address bar collapse/expand shifts height by a few pixels on scroll.
+      // Avoid destroying & reallocating WebGL framebuffers on minor mobile scroll jitters!
+      if (width > 1 && Math.abs(newWidth - width) < 4 && Math.abs(newHeight - height) < 70) {
+        return;
+      }
+
+      width = newWidth;
+      height = newHeight;
       renderer.setSize(width, height);
       compositeUniforms.uResolution.value = [width, height];
 
@@ -375,11 +395,30 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
       const fieldH = Math.max(2, Math.round(height * scale));
       displacementTarget.setSize(fieldW, fieldH);
       compositeUniforms.uTexel.value = [1 / fieldW, 1 / fieldH];
+      renderer.render({ scene: compositeMesh });
     };
 
     const ro = new ResizeObserver(resize);
     ro.observe(mount);
     resize();
+
+    let isVisible = true;
+    let raf = 0;
+    let previousTime = 0;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          isVisible = entry.isIntersecting;
+          if (isVisible && !raf) {
+            previousTime = performance.now();
+            raf = requestAnimationFrame(loop);
+          }
+        }
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(mount);
 
     const setNewWave = (x: number, y: number, power: number) => {
       const cfg = configRef.current;
@@ -391,6 +430,11 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
       wave.target = START_SCALE * Math.max(1, cfg.spread) * power;
       wave.size = Math.max(1, cfg.brushSize);
       wave.opacity = 1;
+
+      if (isVisible && !raf) {
+        previousTime = performance.now();
+        raf = requestAnimationFrame(loop);
+      }
     };
 
     const localPoint = (clientX: number, clientY: number) => {
@@ -429,11 +473,14 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
     window.addEventListener('pointermove', onMove, { passive: true });
     window.addEventListener('pointerdown', onDown, { passive: true });
 
-    let raf = 0;
-    let previousTime = 0;
+    let activeWavesPrev = 1;
 
     const loop = (now: number) => {
-      raf = requestAnimationFrame(loop);
+      if (!isVisible) {
+        raf = 0;
+        return;
+      }
+
       const delta = previousTime ? Math.min(0.05, (now - previousTime) / 1000) : 0;
       previousTime = now;
       const cfg = configRef.current;
@@ -441,6 +488,7 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
       const growth = reduceMotion ? 0 : 1 - Math.exp(-delta * 1.09);
       const decay = reduceMotion ? 1 : Math.exp((-delta * LIFE_CONSTANT) / Math.max(0.15, cfg.fade));
 
+      let activeWaves = 0;
       for (let i = 0; i < MAX_WAVES; i += 1) {
         const wave = waves[i];
         if (wave.opacity <= 0) {
@@ -448,6 +496,7 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
           continue;
         }
 
+        activeWaves += 1;
         wave.opacity *= decay;
         wave.scale += (wave.target - wave.scale) * growth;
 
@@ -465,19 +514,33 @@ const RippleDistortion: React.FC<RippleDistortionProps> = ({
         opacities[i] = wave.opacity;
       }
 
-      geometry.attributes.iOffset.needsUpdate = true;
-      geometry.attributes.iScale.needsUpdate = true;
-      geometry.attributes.iOpacity.needsUpdate = true;
+      if (activeWaves > 0) {
+        geometry.attributes.iOffset.needsUpdate = true;
+        geometry.attributes.iScale.needsUpdate = true;
+        geometry.attributes.iOpacity.needsUpdate = true;
 
-      renderer.render({ scene: waveMesh, target: displacementTarget, clear: true });
+        renderer.render({ scene: waveMesh, target: displacementTarget, clear: true });
+      } else if (activeWavesPrev > 0) {
+        renderer.render({ scene: waveMesh, target: displacementTarget, clear: true });
+      }
+
+      activeWavesPrev = activeWaves;
+
+      // Always render compositeMesh to display the background image
       renderer.render({ scene: compositeMesh });
+
+      raf = requestAnimationFrame(loop);
     };
+
+    // Initial render to draw base image texture
+    renderer.render({ scene: compositeMesh });
     raf = requestAnimationFrame(loop);
 
     return () => {
       disposed = true;
-      cancelAnimationFrame(raf);
+      if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerdown', onDown);
       uniformsRef.current = null;

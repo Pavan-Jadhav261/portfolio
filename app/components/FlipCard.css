@@ -53,6 +53,7 @@
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
 }
 
 .flip-card__face {
@@ -67,6 +68,8 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .flip-card:hover .flip-card__face {
@@ -79,7 +82,8 @@
 }
 
 .flip-card__face--back {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(1px);
+  -webkit-transform: rotateY(180deg) translateZ(1px);
   background: var(--fc-back-bg, #ffffff);
   color: var(--fc-back-ink, #09090b);
   border-color: rgba(255, 255, 255, 0.95);
@@ -92,7 +96,8 @@
 }
 
 .flip-card[data-axis='x'] .flip-card__face--back {
-  transform: rotateX(180deg);
+  transform: rotateX(180deg) translateZ(1px);
+  -webkit-transform: rotateX(180deg) translateZ(1px);
 }
 
 .flip-card__glare {

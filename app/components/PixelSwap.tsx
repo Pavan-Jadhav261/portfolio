@@ -3,8 +3,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './PixelSwap.css';
 
-const MAX_PIXELS = 220;
-const KEYFRAME_STEPS = 14;
+const MAX_PIXELS = 160;
+const KEYFRAME_STEPS = 8;
 
 const PATTERNS: Record<string, ((x: number, y: number) => number | null) | (() => null)> = {
   random: () => null,
@@ -88,11 +88,13 @@ interface PixelData {
 
 const buildGrid = ({ width, height, pixelSize, gap, pattern, randomness }: GridConfig) => {
   let size = pixelSize;
+  const isMobile = width < 640;
+  const effectiveMaxPixels = isMobile ? 80 : MAX_PIXELS;
   let columns = Math.max(1, Math.ceil((width + gap) / (size + gap)));
   let rows = Math.max(1, Math.ceil((height + gap) / (size + gap)));
 
-  if (columns * rows > MAX_PIXELS) {
-    size = Math.ceil(size * Math.sqrt((columns * rows) / MAX_PIXELS));
+  if (columns * rows > effectiveMaxPixels) {
+    size = Math.ceil(size * Math.sqrt((columns * rows) / effectiveMaxPixels));
     columns = Math.max(1, Math.ceil((width + gap) / (size + gap)));
     rows = Math.max(1, Math.ceil((height + gap) / (size + gap)));
   }
@@ -337,13 +339,42 @@ export default function PixelSwap({
     [active, onActiveChange]
   );
 
+  const isTouchDevice = useRef(false);
+  const lastTouchTime = useRef(0);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      isTouchDevice.current = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    }
+  }, []);
+
   const interactionProps = useMemo(() => {
+    const isTouchActive = () => {
+      return isTouchDevice.current || (Date.now() - lastTouchTime.current < 1200);
+    };
+
     if (trigger === 'hover') {
       return {
-        onMouseEnter: () => requestActive(true),
-        onMouseLeave: () => requestActive(false),
-        onFocus: () => requestActive(true),
-        onBlur: () => requestActive(false),
+        onPointerDown: (e: React.PointerEvent) => {
+          if (e.pointerType === 'touch') {
+            lastTouchTime.current = Date.now();
+          }
+        },
+        onTouchStart: () => {
+          lastTouchTime.current = Date.now();
+        },
+        onMouseEnter: () => {
+          if (!isTouchActive()) requestActive(true);
+        },
+        onMouseLeave: () => {
+          if (!isTouchActive()) requestActive(false);
+        },
+        onFocus: () => {
+          if (!isTouchActive()) requestActive(true);
+        },
+        onBlur: () => {
+          if (!isTouchActive()) requestActive(false);
+        },
         onClick: () => {
           requestActive(!desiredActive);
         },

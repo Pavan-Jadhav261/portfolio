@@ -79,18 +79,18 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
     [easing]
   );
 
-  useEffect(() => {
+  const animatingRef = useRef(false);
+
+  const startAnimation = useCallback(() => {
+    if (animatingRef.current) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationId: number;
+    animatingRef.current = true;
 
     const draw = (timestamp: number) => {
-      if (!startTimeRef.current) {
-        startTimeRef.current = timestamp;
-      }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       sparksRef.current = sparksRef.current.filter(spark => {
@@ -120,15 +120,16 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
         return true;
       });
 
-      animationId = requestAnimationFrame(draw);
+      if (sparksRef.current.length > 0) {
+        requestAnimationFrame(draw);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        animatingRef.current = false;
+      }
     };
 
-    animationId = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(animationId);
-    };
-  }, [sparkColor, sparkSize, sparkRadius, sparkCount, duration, easeFunc, extraScale]);
+    requestAnimationFrame(draw);
+  }, [duration, easeFunc, extraScale, sparkColor, sparkRadius, sparkSize]);
 
   useEffect(() => {
     const handlePointerDown = (e: PointerEvent) => {
@@ -141,13 +142,14 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
       }));
 
       sparksRef.current.push(...newSparks);
+      startAnimation();
     };
 
     window.addEventListener('pointerdown', handlePointerDown, { passive: true });
     return () => {
       window.removeEventListener('pointerdown', handlePointerDown);
     };
-  }, [sparkCount]);
+  }, [sparkCount, startAnimation]);
 
   return (
     <div

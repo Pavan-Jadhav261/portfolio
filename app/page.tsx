@@ -11,6 +11,7 @@ import FlipCard from "./components/FlipCard";
 import WorkSection from "./components/WorkSection";
 import AIAssistant from "./components/AIAssistant";
 import AudioPlayer from "./components/AudioPlayer";
+import { audioManager } from "./lib/audioManager";
 
 export default function Home() {
   const [assetsReady, setAssetsReady] = useState(false);
@@ -47,27 +48,11 @@ export default function Home() {
       ? document.fonts.ready.catch(() => {})
       : Promise.resolve();
 
-    // 3. Preload French Montana soundtrack buffer
+    // 3. Preload and prime soundtrack via centralized AudioManager
     const preloadAudio = new Promise<void>((resolve) => {
       try {
-        const audio = new Audio();
-        audio.src = encodeURI('/French montana unforgettable-instrumental - (320 Kbps).mp3');
-        audio.preload = 'auto';
-
-        let finished = false;
-        const onReady = () => {
-          if (!finished) {
-            finished = true;
-            resolve();
-          }
-        };
-
-        audio.addEventListener('canplay', onReady, { once: true });
-        audio.addEventListener('canplaythrough', onReady, { once: true });
-        audio.addEventListener('error', onReady, { once: true });
-
-        // Safety timeout of 2.2s so audio buffering doesn't hold up the screen indefinitely
-        setTimeout(onReady, 2200);
+        audioManager.init();
+        resolve();
       } catch {
         resolve();
       }
@@ -159,7 +144,7 @@ export default function Home() {
         {/* ─────────────────────────────────────────────────────────────
             SECTION 1: HERO LANDING (FULL VISIBLE HEIGHT WITH WEBGL BACKGROUND)
            ───────────────────────────────────────────────────────────── */}
-        <section className="relative w-full h-screen min-h-[100dvh] overflow-hidden bg-black flex flex-col justify-between">
+        <section className="relative w-full h-[100svh] min-h-[100svh] sm:h-screen sm:min-h-screen overflow-hidden bg-black flex flex-col justify-between">
           {/* Background Interactive Ripple Distortion Effect - perfectly framed on mobile & desktop */}
           <div className="absolute top-0 left-0 w-full h-[65vh] sm:h-full z-0 overflow-hidden">
             <RippleDistortion

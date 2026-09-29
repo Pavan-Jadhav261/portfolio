@@ -1,115 +1,46 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { audioManager } from '../lib/audioManager';
 
 interface AudioPlayerProps {
-  shouldPlay: boolean;
+  shouldPlay?: boolean;
 }
 
-const AUDIO_SRC = encodeURI('/French montana unforgettable-instrumental - (320 Kbps).mp3');
-
 export default function AudioPlayer({ shouldPlay }: AudioPlayerProps) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Smooth volume fade-in utility
-  const fadeInVolume = (audio: HTMLAudioElement, targetVolume = 0.45, durationMs = 2800) => {
-    if (fadeIntervalRef.current) {
-      clearInterval(fadeIntervalRef.current);
-    }
-    audio.volume = 0;
-    const steps = 30;
-    const stepInterval = durationMs / steps;
-    const volumeIncrement = targetVolume / steps;
-    let step = 0;
-
-    fadeIntervalRef.current = setInterval(() => {
-      step++;
-      if (step >= steps) {
-        audio.volume = targetVolume;
-        if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
-      } else {
-        audio.volume = Math.min(targetVolume, step * volumeIncrement);
-      }
-    }, stepInterval);
-  };
-
-  // Initialize audio and preload
   useEffect(() => {
-    const audio = new Audio();
-    audio.src = AUDIO_SRC;
-    audio.loop = true;
-    audio.preload = 'auto';
+    // Subscribe to playback state changes
+    const unsubscribe = audioManager.subscribe((playing) => {
+      setIsPlaying(playing);
+    });
 
-    audioRef.current = audio;
-
-    return () => {
-      if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
-      audio.pause();
-      audio.src = '';
-    };
+    return () => unsubscribe();
   }, []);
 
-  // Trigger playback as soon as shouldPlay becomes true (landing page appears)
   useEffect(() => {
-    if (!shouldPlay || !audioRef.current) return;
-
-    const audio = audioRef.current;
-
-    const playWithFade = () => {
-      audio.play()
-        .then(() => {
-          setIsPlaying(true);
-          fadeInVolume(audio, 0.45, 3000);
-        })
-        .catch((err) => {
-          // Autoplay blocked by browser policy without prior interaction:
-          // Listen for the very first interaction (click, touch, key) to unlock & start
-          const unlock = () => {
-            audio.play()
-              .then(() => {
-                setIsPlaying(true);
-                fadeInVolume(audio, 0.45, 2500);
-              })
-              .catch(() => {});
-            window.removeEventListener('pointerdown', unlock);
-            window.removeEventListener('keydown', unlock);
-            window.removeEventListener('touchstart', unlock);
-          };
-          window.addEventListener('pointerdown', unlock, { once: true });
-          window.addEventListener('keydown', unlock, { once: true });
-          window.addEventListener('touchstart', unlock, { once: true });
-        });
-    };
-
-    playWithFade();
+    if (shouldPlay) {
+      audioManager.play().then((success) => {
+        if (!success) {
+          // Autoplay was blocked by browser policy without prior interaction:
+          // Arm global listeners for immediate unlock on next touch/click
+          audioManager.armUserGestureUnlock();
+        }
+      });
+    }
   }, [shouldPlay]);
 
   const togglePlayback = () => {
-    if (!audioRef.current) return;
-    const audio = audioRef.current;
-
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-    } else {
-      audio.play()
-        .then(() => {
-          setIsPlaying(true);
-          if (audio.volume < 0.2) {
-            fadeInVolume(audio, 0.45, 1200);
-          }
-        })
-        .catch(() => {});
-    }
+    audioManager.toggle();
   };
 
   return (
     <button
       onClick={togglePlayback}
       type="button"
-      title={isPlaying ? "Mute soundtrack" : "Play soundtrack"}
+      title={isPlaying ? 'Mute soundtrack' : 'Play soundtrack'}
+      aria-label={isPlaying ? 'Soundtrack is ON, click to mute' : 'Soundtrack is OFF, click to play'}
       className="group relative flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full border border-white/15 bg-black/50 hover:bg-white/10 hover:border-white/30 backdrop-blur-md transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.5)] cursor-pointer select-none"
     >
       {/* Equalizer soundwave bars */}
