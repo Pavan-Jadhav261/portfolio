@@ -212,7 +212,7 @@ export default function Home() {
               <AudioPlayer shouldPlay={landingPageAppeared} />
 
               <a
-                href="mailto:pavanjadhav5331@gmail.com"
+                href="https://www.linkedin.com/in/pavan-jadhav261/"
                 className="px-3.5 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-semibold border border-white/20 bg-black/40 hover:bg-white hover:text-black backdrop-blur-md transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.5)] cursor-pointer whitespace-nowrap"
               >
                 Get In Touch
