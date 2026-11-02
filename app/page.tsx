@@ -381,7 +381,7 @@ export default function Home() {
                       02 / HACKATHON
                     </span>
                     <h3 className="text-2xl sm:text-3xl lg:text-[42px] font-bold text-white tracking-tight font-gilroy mb-3 md:mb-0">
-                      5&times; Winners
+                      6&times; Winners
                     </h3>
                     <div className="md:hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-[10px] font-mono tracking-wider text-zinc-300 shadow-[0_2px_10px_rgba(0,0,0,0.4)]">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#ff2a5f] animate-pulse" />
