@@ -398,7 +398,7 @@ export default function Home() {
                       Hackathon Winner
                     </h3>
                     <p className="text-xs sm:text-sm text-zinc-600 max-w-[280px] leading-relaxed font-medium mb-3 md:mb-0">
-                      5&times; winner in fast-paced hackathons, architecting working MVPs under 24&ndash;48h.
+                      6&times; winner in fast-paced hackathons, architecting working MVPs under 24&ndash;48h.
                     </p>
                     <div className="md:hidden mt-3 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100 border border-zinc-200 text-[10px] font-mono tracking-wider text-zinc-600">
                       <span>TAP TO FLIP BACK</span>
